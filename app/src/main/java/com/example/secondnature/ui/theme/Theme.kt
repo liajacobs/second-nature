@@ -1,5 +1,7 @@
 package com.example.secondnature.ui.theme
 
+//TODO: update to match wireframes
+
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
