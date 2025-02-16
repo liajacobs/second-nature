@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "994156427089",
+    "project_id": "secondnature-ba5a4",
+    "storage_bucket": "secondnature-ba5a4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:994156427089:android:a46ac1f165abcab0080570",
+        "android_client_info": {
+          "package_name": "com.example.secondnature"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPXNk_dXxN3Ru-WUVvwJUFy9jPyWGZdrk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
