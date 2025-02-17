@@ -1,4 +1,4 @@
-package com.example.secondnature.viewmodel
+package com.example.secondnature.data.model
 
 // Define User data class
 data class User(
