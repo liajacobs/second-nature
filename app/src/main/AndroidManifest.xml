@@ -15,21 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SecondNature"
         tools:targetApi="31" >
-        <activity
-            android:name="ui.screens.ui.MainScreen"
-            android:exported="false"
-            android:label="@string/title_activity_main_screen"
-            android:theme="@style/Theme.SecondNature" />
-        <activity
-            android:name="ui.screens.ui.ui.theme.MainScreen"
-            android:exported="false"
-            android:label="@string/title_activity_main_screen"
-            android:theme="@style/Theme.SecondNature" />
-        <activity
-            android:name="ui.screens.ui.HomeScreen"
-            android:exported="false"
-            android:label="@string/title_activity_home_screen"
-            android:theme="@style/Theme.SecondNature" /> <!-- Firebase service for background notifications -->
         <service
             android:name="com.google.firebase.messaging.FirebaseMessagingService"
             android:exported="false" /> <!-- Firebase Authentication or other services initialization -->
@@ -40,12 +25,12 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorPrimary" /> <!-- Your activities -->
         <activity
-            android:name="ui.screens.ui.CreateAccountScreen"
+            android:name=".CreateAccountScreen"
             android:exported="false"
             android:label="@string/title_activity_create_account_screen"
             android:theme="@style/Theme.SecondNature" />
         <activity
-            android:name="ui.screens.ui.LoginScreen"
+            android:name=".LoginScreen"
             android:exported="false"
             android:label="@string/title_activity_login_screen"
             android:theme="@style/Theme.SecondNature" />

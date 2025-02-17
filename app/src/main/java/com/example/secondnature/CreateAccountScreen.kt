@@ -1,4 +1,4 @@
-package ui.screens.ui
+package com.example.secondnature
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

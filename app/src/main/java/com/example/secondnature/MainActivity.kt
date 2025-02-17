@@ -17,8 +17,6 @@ import com.example.secondnature.ui.screens.home.HomeScreen
 import com.example.secondnature.ui.screens.post.PostScreen
 import com.example.secondnature.ui.screens.profile.ProfileScreen
 import com.example.secondnature.ui.screens.search.SearchScreen
-import ui.screens.ui.LoginScreen
-import ui.screens.ui.CreateAccountScreen
 import ui.screens.ui.ui.theme.SecondNatureTheme
 
 class MainActivity : ComponentActivity() {
