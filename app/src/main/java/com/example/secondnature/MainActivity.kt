@@ -51,12 +51,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(navController: NavController) {
-    Scaffold(bottomBar = { Navbar(navController = navController) }) { innerPadding ->
-        val nestedNavController = rememberNavController() // Ensuring a valid NavController
+    val nestedNavController = rememberNavController()
 
+    Scaffold(
+        bottomBar = {
+            Navbar(navController = nestedNavController) // Pass the nested controller
+        }
+    ) { innerPadding ->
         NavHost(
-            navController = nestedNavController, // Make sure this is correct
-            startDestination = NavigationItem.Home.route, // Ensure this is a valid route
+            navController = nestedNavController,
+            startDestination = NavigationItem.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(NavigationItem.Home.route) { HomeScreen() }

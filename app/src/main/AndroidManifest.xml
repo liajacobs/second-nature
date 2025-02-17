@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" >
     <!-- Firebase permissions (if required) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -14,13 +14,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SecondNature"
-        tools:targetApi="31">
+        tools:targetApi="31" >
+        <activity
+            android:name="ui.screens.ui.MainScreen"
+            android:exported="false"
+            android:label="@string/title_activity_main_screen"
+            android:theme="@style/Theme.SecondNature" />
+        <activity
+            android:name="ui.screens.ui.ui.theme.MainScreen"
+            android:exported="false"
+            android:label="@string/title_activity_main_screen"
+            android:theme="@style/Theme.SecondNature" />
         <activity
             android:name="ui.screens.ui.HomeScreen"
             android:exported="false"
             android:label="@string/title_activity_home_screen"
-            android:theme="@style/Theme.SecondNature" />
-        <!-- Firebase service for background notifications -->
+            android:theme="@style/Theme.SecondNature" /> <!-- Firebase service for background notifications -->
         <service
             android:name="com.google.firebase.messaging.FirebaseMessagingService"
             android:exported="false" /> <!-- Firebase Authentication or other services initialization -->
@@ -43,7 +52,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

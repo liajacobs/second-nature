@@ -20,20 +20,20 @@ class CreateAccountViewModel : ViewModel() {
         password: String
     ): Boolean {
         return try {
-            // Step 1: Create user with Firebase Authentication
+            //Create user with Firebase Authentication
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
 
-            // Step 2: Retrieve user UID from Firebase Authentication result
+            //Retrieve user UID from Firebase Authentication result
             Log.d("CreateAccountViewModel", "Auth result: ${authResult.user?.uid}")
             val userId = authResult.user?.uid ?: return false// Return false if userId is null
 
-            // Step 3: Create a User object without the password field
+            //Create a User object without the password field
             val user = User(firstName, lastName, email)
 
-            // Step 4: Store user data in Firestore (without the password)
+            //Store user data in Firestore (without the password)
             val userDocRef = firestore.collection("users").document(userId)
 
-            // Set user data to Firestore document
+            //Set user data to Firestore document
             userDocRef.set(user).await()
 
             // Successfully created account and stored user in Firestore
