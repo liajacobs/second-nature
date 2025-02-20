@@ -8,10 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.compose.*
 import com.example.secondnature.ui.components.Navbar
 import com.example.secondnature.ui.navigation.NavigationItem
+import com.example.secondnature.ui.screens.auth.CreateAccountScreen
+import com.example.secondnature.ui.screens.auth.LoginScreen
 import com.example.secondnature.ui.screens.history.HistoryScreen
 import com.example.secondnature.ui.screens.home.HomeScreen
 import com.example.secondnature.ui.screens.post.PostScreen
@@ -38,9 +39,7 @@ class MainActivity : ComponentActivity() {
                     composable("createAccount") {
                         CreateAccountScreen(navController = navController)
                     }
-                    composable("mainScreen") {
-                        MainScreen(navController = navController)
-                    }
+                    composable("mainScreen") { MainScreen() }
                 }
             }
         }
@@ -48,18 +47,18 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen() {
     val nestedNavController = rememberNavController()
 
     Scaffold(
-        bottomBar = {
-            Navbar(navController = nestedNavController) // Pass the nested controller
-        }
+            bottomBar = {
+                Navbar(navController = nestedNavController) // Pass the nested controller
+            }
     ) { innerPadding ->
         NavHost(
-            navController = nestedNavController,
-            startDestination = NavigationItem.Home.route,
-            modifier = Modifier.padding(innerPadding)
+                navController = nestedNavController,
+                startDestination = NavigationItem.Home.route,
+                modifier = Modifier.padding(innerPadding)
         ) {
             composable(NavigationItem.Home.route) { HomeScreen() }
             composable(NavigationItem.Search.route) { SearchScreen() }
