@@ -1,5 +1,6 @@
 package com.example.secondnature.ui.components
 
+import android.util.Log
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -13,6 +14,7 @@ import com.example.secondnature.ui.navigation.NavigationItem
 
 @Composable
 fun Navbar(navController: NavController) {
+    Log.d("Lifecycle", "Entering Navbar Composable")
     val items =
             listOf(
                     NavigationItem.Home,

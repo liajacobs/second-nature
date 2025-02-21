@@ -1,5 +1,6 @@
 package com.example.secondnature.ui.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,6 +18,8 @@ fun LoginScreen(
         viewModel: LoginViewModel = viewModel(),
         onLoginSuccess: () -> Unit
 ) {
+    Log.d("Lifecycle", "Entering LoginScreen Composable")
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
