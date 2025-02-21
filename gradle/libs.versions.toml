@@ -23,6 +23,7 @@ navigationRuntimeKtx = "2.9.0-alpha06"
 firebaseMessaging = "24.1.0"
 runtimeLivedataVersion = "1.0.0"
 uiToolingPreview = "1.7.8"
+coil = "2.6.0"
 
 
 [libraries]
@@ -59,6 +60,7 @@ androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navig
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
