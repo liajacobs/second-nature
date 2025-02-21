@@ -1,5 +1,6 @@
 package com.example.secondnature.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,7 +33,7 @@ fun PostItem(
     date: LocalDateTime,
     distance: Double
 ) {
-    println("entered post item")
+    Log.d("Lifecycle", "Entering PostItem Composable")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,6 +64,7 @@ fun PostItem(
 // Filled in star rating
 @Composable
 fun StarRating(rating: Int) {
+    Log.d("Lifecycle", "Entering StarRating Composable")
     Row {
         for (i in 1..5) {
             var fill = if (i <= rating) Color.Red else Color.Gray
@@ -78,6 +80,7 @@ fun StarRating(rating: Int) {
 // Filled in price rating
 @Composable
 fun PriceRating(rating: Int) {
+    Log.d("Lifecycle", "Entering PriceRating Composable")
     Row {
         for (i in 1..3) {
             var fill = if (i <= rating) Color.Red else Color.Gray
