@@ -1,5 +1,4 @@
-package com.example.secondnature
-
+package com.example.secondnature.ui.screens.auth
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -99,14 +98,20 @@ fun CreateAccountScreen(navController: NavController) {
 }
 
 @Composable
-fun UserInputField(value: String, label: String, isPassword: Boolean = false, onValueChange: (String) -> Unit) {
+fun UserInputField(
+        value: String,
+        label: String,
+        isPassword: Boolean = false,
+        onValueChange: (String) -> Unit
+) {
     Log.d("Lifecycle", "Entering UserInputField Composable")
     TextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        modifier = Modifier.fillMaxWidth()
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            visualTransformation =
+                    if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            modifier = Modifier.fillMaxWidth()
     )
 }
 
