@@ -13,6 +13,15 @@ import androidx.navigation.NavController
 import com.example.secondnature.viewmodel.CreateAccountViewModel
 import kotlinx.coroutines.launch
 
+data class ValidationErrors(
+        val firstNameError: String? = null,
+        val lastNameError: String? = null,
+        val emailError: String? = null,
+        val usernameError: String? = null,
+        val passwordError: String? = null,
+        val confirmPasswordError: String? = null
+)
+
 @Composable
 fun CreateAccountScreen(navController: NavController) {
     Log.d("Lifecycle", "Entering CreateAccountScreen Composable")
@@ -26,6 +35,7 @@ fun CreateAccountScreen(navController: NavController) {
     var confirmPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
+    var validationErrors by remember { mutableStateOf(ValidationErrors()) }
 
     // ViewModel for creating accounts
     val viewModel: CreateAccountViewModel = viewModel()
@@ -39,22 +49,36 @@ fun CreateAccountScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
     ) {
         // First Name TextField
-        UserInputField(value = firstName, label = "First Name") { firstName = it }
+        UserInputField(
+                value = firstName,
+                label = "First Name",
+                errorMessage = validationErrors.firstNameError
+        ) { firstName = it }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // Last Name TextField
-        UserInputField(value = lastName, label = "Last Name") { lastName = it }
+        UserInputField(
+                value = lastName,
+                label = "Last Name",
+                errorMessage = validationErrors.lastNameError
+        ) { lastName = it }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // Email TextField
-        UserInputField(value = email, label = "Email") { email = it }
+        UserInputField(value = email, label = "Email", errorMessage = validationErrors.emailError) {
+            email = it
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // Username TextField
-        UserInputField(value = username, label = "Username") { username = it }
+        UserInputField(
+                value = username,
+                label = "Username",
+                errorMessage = validationErrors.usernameError
+        ) { username = it }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -63,6 +87,7 @@ fun CreateAccountScreen(navController: NavController) {
                 value = password,
                 label = "Password",
                 isPassword = true,
+                errorMessage = validationErrors.passwordError,
                 onValueChange = { password = it }
         )
 
@@ -73,6 +98,7 @@ fun CreateAccountScreen(navController: NavController) {
                 value = confirmPassword,
                 label = "Confirm Password",
                 isPassword = true,
+                errorMessage = validationErrors.confirmPasswordError,
                 onValueChange = { confirmPassword = it }
         )
 
@@ -91,7 +117,8 @@ fun CreateAccountScreen(navController: NavController) {
         // Create Account Button
         Button(
                 onClick = {
-                    if (validateInputs(
+                    val errors =
+                            validateInputs(
                                     firstName,
                                     lastName,
                                     email,
@@ -99,7 +126,9 @@ fun CreateAccountScreen(navController: NavController) {
                                     password,
                                     confirmPassword
                             )
-                    ) {
+                    validationErrors = errors
+
+                    if (errors == ValidationErrors()) { // If no errors
                         isLoading = true
                         scope.launch {
                             val success =
@@ -118,9 +147,6 @@ fun CreateAccountScreen(navController: NavController) {
                                 errorMessage = "Account creation failed. Please try again."
                             }
                         }
-                    } else {
-                        // TODO: Show specific error message for each field
-                        errorMessage = "Please fill in all fields correctly."
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -151,18 +177,31 @@ fun UserInputField(
         value: String,
         label: String,
         isPassword: Boolean = false,
+        errorMessage: String? = null,
         onValueChange: (String) -> Unit
 ) {
     Log.d("Lifecycle", "Entering UserInputField Composable")
-    TextField(
-            value = value,
-            onValueChange = onValueChange,
-            label = { Text(label) },
-            visualTransformation =
-                    if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-    )
+    Column {
+        TextField(
+                value = value,
+                onValueChange = onValueChange,
+                label = { Text(label) },
+                visualTransformation =
+                        if (isPassword) PasswordVisualTransformation()
+                        else VisualTransformation.None,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = errorMessage != null
+        )
+        if (errorMessage != null) {
+            Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
+        }
+    }
 }
 
 private fun validateInputs(
@@ -172,13 +211,28 @@ private fun validateInputs(
         username: String,
         password: String,
         confirmPassword: String
-): Boolean {
-    return firstName.isNotBlank() &&
-            lastName.isNotBlank() &&
-            email.isNotBlank() &&
-            username.isNotBlank() &&
-            password.isNotBlank() &&
-            password == confirmPassword &&
-            password.length >= 6 &&
-            email.contains("@")
+): ValidationErrors {
+    return ValidationErrors(
+            firstNameError = if (firstName.isBlank()) "First name is required" else null,
+            lastNameError = if (lastName.isBlank()) "Last name is required" else null,
+            emailError =
+                    if (email.isBlank()) {
+                        "Email is required"
+                    } else if (!email.contains("@")) {
+                        "Invalid email format"
+                    } else null,
+            usernameError = if (username.isBlank()) "Username is required" else null,
+            passwordError =
+                    when {
+                        password.isBlank() -> "Password is required"
+                        password.length < 6 -> "Password must be at least 6 characters"
+                        else -> null
+                    },
+            confirmPasswordError =
+                    when {
+                        confirmPassword.isBlank() -> "Please confirm your password"
+                        confirmPassword != password -> "Passwords don't match"
+                        else -> null
+                    }
+    )
 }
