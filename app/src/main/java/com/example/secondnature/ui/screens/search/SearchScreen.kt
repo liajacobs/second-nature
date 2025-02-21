@@ -1,22 +1,38 @@
 package com.example.secondnature.ui.screens.search
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.secondnature.ui.components.RequestLocationPermission
+import com.example.secondnature.viewmodel.LocationViewModel
 
 @Composable
-fun SearchScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Search Screen")
+fun SearchScreen(viewModel: LocationViewModel = viewModel()) {
+    val location by viewModel.location.observeAsState()
+    val errorMessage by viewModel.errorMessage.observeAsState()
+
+    RequestLocationPermission(
+        onPermissionGranted = {
+            viewModel.getCurrentLocation()
+        },
+        onPermissionDenied = {
+            viewModel.errorMessage.setValue("Location permission is required")
+        }
+    )
+
+    Column {
+        errorMessage?.let {
+            Text(text = it, color = Color.Red)
+        } ?: run {
+            if (location != null) {
+                Text(text = "${location?.first}, : ${location?.second}")
+            } else {
+                Text(text = "Fetching location...")
+            }
+        }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SearchScreenPreview() {
-    SearchScreen()
 }

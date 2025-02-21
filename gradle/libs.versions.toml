@@ -23,6 +23,8 @@ navigationRuntimeKtx = "2.9.0-alpha06"
 firebaseMessaging = "24.1.0"
 runtimeLivedataVersion = "1.0.0"
 uiToolingPreview = "1.7.8"
+playServicesLocation = "21.1.0"
+accompanist = "0.35.0-alpha"
 
 
 [libraries]
@@ -59,6 +61,9 @@ androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navig
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
+android-gms-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation"}
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
