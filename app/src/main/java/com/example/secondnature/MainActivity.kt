@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.compose.*
 import com.example.secondnature.ui.components.Navbar
 import com.example.secondnature.ui.navigation.NavigationItem
@@ -39,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     composable("createAccount") {
                         CreateAccountScreen(navController = navController)
                     }
-                    composable("mainScreen") { MainScreen() }
+                    composable("mainScreen") { MainScreen(navController = navController) }
                 }
             }
         }
@@ -71,7 +72,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     val nestedNavController = rememberNavController()
 
     Scaffold(
@@ -88,7 +89,9 @@ fun MainScreen() {
             composable(NavigationItem.Search.route) { SearchScreen() }
             composable(NavigationItem.Post.route) { PostScreen() }
             composable(NavigationItem.History.route) { HistoryScreen() }
-            composable(NavigationItem.Profile.route) { ProfileScreen() }
+            composable(NavigationItem.Profile.route) {
+                ProfileScreen(navController = navController)
+            }
         }
     }
 }
