@@ -25,6 +25,7 @@ runtimeLivedataVersion = "1.0.0"
 uiToolingPreview = "1.7.8"
 playServicesLocation = "21.1.0"
 accompanist = "0.35.0-alpha"
+coil = "2.6.0"
 
 
 [libraries]
@@ -63,7 +64,7 @@ material3 = { module = "androidx.compose.material3:material3", version.ref = "ma
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 android-gms-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation"}
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
-
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
