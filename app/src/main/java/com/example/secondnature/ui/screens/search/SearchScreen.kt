@@ -1,5 +1,6 @@
 package com.example.secondnature.ui.screens.search
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import com.example.secondnature.viewmodel.LocationViewModel
 
 @Composable
 fun SearchScreen(viewModel: LocationViewModel = viewModel()) {
+    Log.d("Lifecycle", "Entering SearchScreen Composable")
     val location by viewModel.location.observeAsState()
     val errorMessage by viewModel.errorMessage.observeAsState()
 

@@ -22,10 +22,10 @@ import com.example.secondnature.ui.theme.SecondNatureTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("Lifecycle", "MainActivity onCreate")
         setContent {
             SecondNatureTheme {
                 val navController = rememberNavController()
-
                 NavHost(navController = navController, startDestination = "login") {
                     composable("login") {
                         LoginScreen(navController = navController) {
@@ -44,6 +44,30 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    override fun onStart() {
+        super.onStart()
+        Log.d("Lifecycle", "MainActivity onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("Lifecycle", "MainActivity onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("Lifecycle", "MainActivity onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("Lifecycle", "MainActivity onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("Lifecycle", "MainActivity onDestroy")
     }
 }
 

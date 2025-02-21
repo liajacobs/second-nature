@@ -1,5 +1,6 @@
 package com.example.secondnature
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +15,8 @@ import com.example.secondnature.viewmodel.CreateAccountViewModel
 
 @Composable
 fun CreateAccountScreen(navController: NavController) {
+    Log.d("Lifecycle", "Entering CreateAccountScreen Composable")
+
     // State variables for user input
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -97,6 +100,7 @@ fun CreateAccountScreen(navController: NavController) {
 
 @Composable
 fun UserInputField(value: String, label: String, isPassword: Boolean = false, onValueChange: (String) -> Unit) {
+    Log.d("Lifecycle", "Entering UserInputField Composable")
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -108,6 +112,7 @@ fun UserInputField(value: String, label: String, isPassword: Boolean = false, on
 
 @Composable
 fun CreateAccountButton(isLoading: Boolean, onClick: () -> Unit) {
+    Log.d("Lifecycle", "Entering CreateAccountButton Composable")
     Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),

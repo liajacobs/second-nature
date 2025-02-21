@@ -1,6 +1,7 @@
 package com.example.secondnature.ui.components
 
 import android.Manifest
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -11,6 +12,7 @@ fun RequestLocationPermission(
     onPermissionGranted: () -> Unit,
     onPermissionDenied: () -> Unit
 ) {
+    Log.d("Lifecycle", "Entering RequestLocationPermission Composable")
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
