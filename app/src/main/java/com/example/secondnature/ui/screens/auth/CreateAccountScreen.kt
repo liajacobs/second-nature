@@ -10,6 +10,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.secondnature.data.repository.AuthRepository
+import com.example.secondnature.viewmodel.AuthViewModelFactory
 import com.example.secondnature.viewmodel.CreateAccountViewModel
 import kotlinx.coroutines.launch
 
@@ -23,7 +25,8 @@ data class ValidationErrors(
 )
 
 @Composable
-fun CreateAccountScreen(navController: NavController) {
+fun CreateAccountScreen(navController: NavController, authRepository: AuthRepository
+) {
     Log.d("Lifecycle", "Entering CreateAccountScreen Composable")
 
     // State variables for user input
@@ -38,8 +41,9 @@ fun CreateAccountScreen(navController: NavController) {
     var validationErrors by remember { mutableStateOf(ValidationErrors()) }
 
     // ViewModel for creating accounts
-    val viewModel: CreateAccountViewModel = viewModel()
-
+    val viewModel: CreateAccountViewModel = viewModel(
+        factory = AuthViewModelFactory(authRepository)
+    )
     // Coroutine scope for launching background tasks
     val scope = rememberCoroutineScope()
 

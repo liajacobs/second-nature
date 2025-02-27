@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.*
+import com.example.secondnature.data.repository.AuthRepository
 import com.example.secondnature.ui.components.Navbar
 import com.example.secondnature.ui.navigation.NavigationItem
 import com.example.secondnature.ui.screens.auth.CreateAccountScreen
@@ -20,8 +21,10 @@ import com.example.secondnature.ui.screens.post.PostScreen
 import com.example.secondnature.ui.screens.profile.ProfileScreen
 import com.example.secondnature.ui.screens.search.SearchScreen
 import com.example.secondnature.ui.theme.SecondNatureTheme
+import com.example.secondnature.viewmodel.LoginViewModel
 
 class MainActivity : ComponentActivity() {
+    private val authRepository = AuthRepository()
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("Lifecycle", "MainActivity onCreate")
         super.onCreate(savedInstanceState)
@@ -30,7 +33,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "login") {
                     composable("login") {
-                        LoginScreen(navController = navController) {
+                        LoginScreen(navController = navController, authRepository = authRepository) {
                             Log.d("Navigation", "Navigating to MainScreen")
                             navController.navigate("mainScreen") {
                                 popUpTo("login") { inclusive = true }
@@ -38,7 +41,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable("createAccount") {
-                        CreateAccountScreen(navController = navController)
+                        CreateAccountScreen(navController = navController, authRepository = authRepository)
                     }
                     composable("mainScreen") { MainScreen(navController = navController) }
                 }
