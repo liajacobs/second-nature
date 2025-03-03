@@ -21,7 +21,6 @@ import com.example.secondnature.ui.screens.post.PostScreen
 import com.example.secondnature.ui.screens.profile.ProfileScreen
 import com.example.secondnature.ui.screens.search.SearchScreen
 import com.example.secondnature.ui.theme.SecondNatureTheme
-import com.example.secondnature.viewmodel.LoginViewModel
 
 class MainActivity : ComponentActivity() {
     private val authRepository = AuthRepository()
