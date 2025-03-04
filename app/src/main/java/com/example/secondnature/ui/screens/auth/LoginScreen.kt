@@ -27,7 +27,7 @@ fun LoginScreen(
     )
 
 
-    var email by remember { mutableStateOf("") }
+    var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
@@ -39,11 +39,11 @@ fun LoginScreen(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.Center
     ) {
-        // Email TextField
+        // Identifier TextField
         TextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
+                value = identifier,
+                onValueChange = { identifier = it },
+                label = { Text("Email or Username") },
                 modifier = Modifier.fillMaxWidth()
         )
 
@@ -78,7 +78,7 @@ fun LoginScreen(
 
                     // Launching a coroutine on the button click
                     coroutineScope.launch {
-                        val loginSuccessful = loginViewModel.login(email, password)
+                        val loginSuccessful = loginViewModel.login(identifier, password)
 
                         if (loginSuccessful) {
                             onLoginSuccess()

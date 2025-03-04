@@ -13,8 +13,24 @@ class AuthRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    suspend fun login(email: String, password: String): Boolean {
+    suspend fun login(identifier: String, password: String): Boolean {
         return try {
+            val email = if (identifier.contains("@")) {
+                identifier 
+            } else {
+                val querySnapshot = firestore.collection("users")
+                    .whereEqualTo("username", identifier)
+                    .get()
+                    .await()
+
+                if (querySnapshot.isEmpty) {
+                    Log.e("AuthRepository", "Username not found")
+                    return false
+                }
+
+                querySnapshot.documents[0].getString("email") ?: return false
+            }
+
             val result = auth.signInWithEmailAndPassword(email, password).await()
             Log.d("LoginViewModel", "Login successful: ${result.user?.email}")
             result.user != null // Return true if login is successful
