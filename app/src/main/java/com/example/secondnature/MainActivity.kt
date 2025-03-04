@@ -20,6 +20,7 @@ import com.example.secondnature.ui.screens.home.HomeScreen
 import com.example.secondnature.ui.screens.post.PostScreen
 import com.example.secondnature.ui.screens.profile.ProfileScreen
 import com.example.secondnature.ui.screens.search.SearchScreen
+import com.example.secondnature.ui.screens.settings.SettingsScreen
 import com.example.secondnature.ui.theme.SecondNatureTheme
 
 class MainActivity : ComponentActivity() {
@@ -43,6 +44,9 @@ class MainActivity : ComponentActivity() {
                         CreateAccountScreen(navController = navController, authRepository = authRepository)
                     }
                     composable("mainScreen") { MainScreen(navController = navController) }
+                    composable("settings") {
+                        SettingsScreen(navController = navController)
+                    }
                 }
             }
         }

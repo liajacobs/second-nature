@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.secondnature.data.model.User
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -85,5 +86,35 @@ class ProfileViewModel : ViewModel() {
 
     fun signOut() {
         auth.signOut()
+    }
+    
+    fun deleteAccount(password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                
+                val user = auth.currentUser ?: throw Exception("User not authenticated")
+                val email = user.email ?: throw Exception("User email not found")
+                val credential = EmailAuthProvider.getCredential(email, password)
+                
+                // Re-authenticate user
+                user.reauthenticate(credential).await()
+                
+                // Delete user data from Firestore
+                val userId = user.uid
+                firestore.collection("users").document(userId).delete().await()
+                
+                // Delete user account
+                user.delete().await()
+                
+                // Sign out
+                auth.signOut()
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e.message ?: "Failed to delete account")
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 }
