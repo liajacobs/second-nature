@@ -10,16 +10,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.secondnature.viewmodel.ProfileViewModel
+import com.example.secondnature.data.repository.AuthRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController) {
-    val viewModel: ProfileViewModel = viewModel()
+    val authRepository = AuthRepository()
+    val coroutineScope = rememberCoroutineScope()
     
     var showDeleteDialog by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
@@ -47,7 +50,7 @@ fun SettingsScreen(navController: NavController) {
             // Sign Out Button
             Button(
                 onClick = {
-                    viewModel.signOut()
+                    authRepository.signOut()
                     navController.navigate("login") { 
                         popUpTo("mainScreen") { inclusive = true } 
                     }
@@ -110,6 +113,14 @@ fun SettingsScreen(navController: NavController) {
                             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                         )
                     }
+                    
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .padding(top = 16.dp)
+                                .align(Alignment.CenterHorizontally)
+                        )
+                    }
                 }
             },
             confirmButton = {
@@ -118,21 +129,28 @@ fun SettingsScreen(navController: NavController) {
                         if (password.isBlank()) {
                             passwordError = "Password is required"
                         } else {
-                            viewModel.deleteAccount(password,
-                                onSuccess = {
-                                    navController.navigate("login") {
-                                        popUpTo("mainScreen") { inclusive = true }
+                            isLoading = true
+                            coroutineScope.launch {
+                                val result = authRepository.deleteAccount(password)
+                                isLoading = false
+                                
+                                result.fold(
+                                    onSuccess = {
+                                        navController.navigate("login") {
+                                            popUpTo("mainScreen") { inclusive = true }
+                                        }
+                                    },
+                                    onFailure = { error ->
+                                        passwordError = error.message ?: "Failed to delete account"
                                     }
-                                },
-                                onError = { errorMessage ->
-                                    passwordError = errorMessage
-                                }
-                            )
+                                )
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
-                    )
+                    ),
+                    enabled = !isLoading
                 ) {
                     Text("Delete")
                 }

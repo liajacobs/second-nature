@@ -1,8 +1,8 @@
 package com.example.secondnature.data.repository
 
-
 import android.util.Log
 import com.example.secondnature.data.model.User
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -17,23 +17,23 @@ class AuthRepository {
         return try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             Log.d("LoginViewModel", "Login successful: ${result.user?.email}")
-            result.user != null  // Return true if login is successful
+            result.user != null // Return true if login is successful
         } catch (e: Exception) {
             Log.e("LoginViewModel", "Login failed: ${e.message}")
-            false  // Return false if login fails
+            false // Return false if login fails
         }
     }
     suspend fun createAccount(
-        firstName: String,
-        lastName: String,
-        email: String,
-        username: String,
-        password: String
+            firstName: String,
+            lastName: String,
+            email: String,
+            username: String,
+            password: String
     ): Boolean {
         return try {
             // Check if username is already taken
             val usernameQuery =
-                firestore.collection("users").whereEqualTo("username", username).get().await()
+                    firestore.collection("users").whereEqualTo("username", username).get().await()
 
             if (!usernameQuery.isEmpty) {
                 Log.e("AuthRepository", "Username already taken")
@@ -70,6 +70,32 @@ class AuthRepository {
             // Catch any other exceptions
             Log.e("AuthRepository", "Error creating account: ${e.message}")
             false
+        }
+    }
+
+    fun signOut() {
+        auth.signOut()
+    }
+
+    suspend fun deleteAccount(password: String): Result<Unit> {
+        return try {
+            val user =
+                    auth.currentUser ?: return Result.failure(Exception("User not authenticated"))
+            val email = user.email ?: return Result.failure(Exception("User email not found"))
+            val credential = EmailAuthProvider.getCredential(email, password)
+
+            user.reauthenticate(credential).await()
+
+            val userId = user.uid
+            firestore.collection("users").document(userId).delete().await()
+
+            user.delete().await()
+
+            auth.signOut()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Delete account failed: ${e.message}")
+            Result.failure(e)
         }
     }
 }
