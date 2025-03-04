@@ -9,16 +9,23 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.secondnature.data.repository.AuthRepository
+import com.example.secondnature.viewmodel.AuthViewModelFactory
 import com.example.secondnature.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-        navController: NavController,
-        viewModel: LoginViewModel = viewModel(),
-        onLoginSuccess: () -> Unit
+    navController: NavController,
+    authRepository: AuthRepository,
+    onLoginSuccess: () -> Unit
 ) {
     Log.d("Lifecycle", "Entering LoginScreen Composable")
+
+    val loginViewModel: LoginViewModel = viewModel(
+        factory = AuthViewModelFactory(authRepository)
+    )
+
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -71,7 +78,7 @@ fun LoginScreen(
 
                     // Launching a coroutine on the button click
                     coroutineScope.launch {
-                        val loginSuccessful = viewModel.login(email, password)
+                        val loginSuccessful = loginViewModel.login(email, password)
 
                         if (loginSuccessful) {
                             onLoginSuccess()
