@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -35,75 +36,92 @@ fun ProfileScreen(navController: NavController) {
         }
     }
 
-    Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (isLoading) {
-            CircularProgressIndicator()
+    Scaffold(
+        topBar = {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(end = 16.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                IconButton(
+                    onClick = { navController.navigate("settings") }
+                ) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = "Settings"
+                    )
+                }
+            }
         }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator()
+            }
 
-        error?.let {
-            Text(
+            error?.let {
+                Text(
                     text = it,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
+                )
+            }
 
-        if (!isEditing) {
-            user?.let { user ->
-                Text(
+            if (!isEditing) {
+                user?.let { user ->
+                    Text(
                         text = "@${user.username}",
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.padding(vertical = 8.dp)
-                )
-                Text(
+                    )
+                    Text(
                         text = "${user.firstName} ${user.lastName}",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Text(text = user.email, style = MaterialTheme.typography.bodyMedium)
+                    )
+                    Text(text = user.email, style = MaterialTheme.typography.bodyMedium)
 
-                IconButton(
+                    IconButton(
                         onClick = { isEditing = true },
                         modifier = Modifier.padding(top = 16.dp)
-                ) { Icon(Icons.Default.Edit, contentDescription = "Edit Profile") }
-            }
-        } else {
-            OutlinedTextField(
+                    ) { Icon(Icons.Default.Edit, contentDescription = "Edit Profile") }
+                }
+            } else {
+                OutlinedTextField(
                     value = firstName,
                     onValueChange = { firstName = it },
                     label = { Text("First Name") },
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            )
+                )
 
-            OutlinedTextField(
+                OutlinedTextField(
                     value = lastName,
                     onValueChange = { lastName = it },
                     label = { Text("Last Name") },
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            )
+                )
 
-            OutlinedTextField(
+                OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
                     label = { Text("Username") },
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            )
+                )
 
-            Row(
+                Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
+                ) {
+                    Button(
                         onClick = {
                             isEditing = false
                             viewModel.updateProfile(firstName, lastName, username)
                         }
-                ) { Text("Save") }
+                    ) { Text("Save") }
 
-                OutlinedButton(
+                    OutlinedButton(
                         onClick = {
                             isEditing = false
                             user?.let {
@@ -112,16 +130,10 @@ fun ProfileScreen(navController: NavController) {
                                 username = it.username
                             }
                         }
-                ) { Text("Cancel") }
+                    ) { Text("Cancel") }
+                }
             }
         }
-
-        Button(
-                onClick = {
-                    viewModel.signOut()
-                    navController.navigate("login") { popUpTo("mainScreen") { inclusive = true } }
-                }
-        ) { Text("Sign Out") }
     }
 }
 
