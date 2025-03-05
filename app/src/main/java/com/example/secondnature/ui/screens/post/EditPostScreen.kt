@@ -10,24 +10,47 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.secondnature.data.model.Post
+import com.example.secondnature.ui.components.PostItem
 import com.example.secondnature.viewmodel.PostViewModel
 import com.google.firebase.Timestamp
 
 @Composable
-fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
-    Log.d("Lifecycle", "Entering CreatePostScreen Composable")
+fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
+    Log.d("Lifecycle", "Entering EditPostScreen Composable")
 
+    val postId = navController.currentBackStackEntry?.arguments?.getString("postId")
     val (storeName, setStoreName) = remember { mutableStateOf("") }
     val (imageURL, setImageURL) = remember { mutableStateOf("") }
 
+    LaunchedEffect(postId) {
+        postId?.let {
+            postViewModel.getPost(it) // Trigger to fetch post from viewModel
+        }
+    }
+
+    val post = postViewModel.post.observeAsState()
+
+    Log.d("PostViewModel", "post is $post and post id is $postId")
+
+    LaunchedEffect(post.value) {
+        post.value?.let {
+            setStoreName(it.storeName)
+            setImageURL(it.imageURL)
+        }
+    }
+
     Column(modifier = Modifier.padding(16.dp)) {
-        // Store Name TextField
         TextField(
             value = storeName,
             onValueChange = setStoreName,
@@ -48,24 +71,25 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
 
         Button(
             onClick = {
-                postViewModel.createPost(
-                    imageURL = imageURL,
-                    storeRating = 1,    // You can make these dynamic too if needed
-                    priceRating = 2,    // Same here for priceRating
-                    storeName = storeName,
-                    username = "TestUser",
-                    date = Timestamp.now(),
-                    storeId = "storeId", // Provide actual storeId and userId here
-                    userId = "userId",
-                    onPostCreated = { postId ->
-                        // Navigate to the created post's detail page
-                        navController.navigate("viewPost/$postId")
+                post.value?.let { post ->
+                        postViewModel.updatePost(
+                            Post(
+                                postId = post.postId,
+                                imageURL = imageURL,
+                                storeRating = 1,
+                                priceRating = 2,
+                                storeName = storeName,
+                                username = "TestUser",
+                                date = Timestamp.now(),
+                                storeId = "storeId",
+                                userId = "userId",
+                            )
+                        )
                     }
-                )
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Create Post")  // Button text
+            Text("Update Post")
         }
     }
 }

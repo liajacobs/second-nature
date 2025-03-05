@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.example.secondnature.data.repository.AuthRepository
 import com.example.secondnature.ui.components.Navbar
 import com.example.secondnature.ui.navigation.NavigationItem
@@ -17,11 +20,14 @@ import com.example.secondnature.ui.screens.auth.CreateAccountScreen
 import com.example.secondnature.ui.screens.auth.LoginScreen
 import com.example.secondnature.ui.screens.history.HistoryScreen
 import com.example.secondnature.ui.screens.home.HomeScreen
-import com.example.secondnature.ui.screens.post.PostScreen
+import com.example.secondnature.ui.screens.post.CreatePostScreen
+import com.example.secondnature.ui.screens.post.EditPostScreen
+import com.example.secondnature.ui.screens.post.ViewPostScreen
 import com.example.secondnature.ui.screens.profile.ProfileScreen
 import com.example.secondnature.ui.screens.search.SearchScreen
 import com.example.secondnature.ui.screens.settings.SettingsScreen
 import com.example.secondnature.ui.theme.SecondNatureTheme
+import com.example.secondnature.viewmodel.PostViewModel
 
 class MainActivity : ComponentActivity() {
     private val authRepository = AuthRepository()
@@ -31,6 +37,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SecondNatureTheme {
                 val navController = rememberNavController()
+                val postViewModel: PostViewModel = viewModel()
                 NavHost(navController = navController, startDestination = "login") {
                     composable("login") {
                         LoginScreen(navController = navController, authRepository = authRepository) {
@@ -46,6 +53,18 @@ class MainActivity : ComponentActivity() {
                     composable("mainScreen") { MainScreen(navController = navController) }
                     composable("settings") {
                         SettingsScreen(navController = navController)
+                    }
+                    composable("viewPost/{postId}") { backStackEntry ->
+                        val postId = backStackEntry.arguments?.getString("postId")
+                        if (postId != null) {
+                            ViewPostScreen(navController = navController, postViewModel = postViewModel)
+                        }
+                    }
+                    composable("editPost/{postId}") { backStackEntry ->
+                        val postId = backStackEntry.arguments?.getString("postId")
+                        if (postId != null) {
+                            EditPostScreen(navController = navController, postViewModel = postViewModel)
+                        }
                     }
                 }
             }
@@ -93,7 +112,7 @@ fun MainScreen(navController: NavController) {
         ) {
             composable(NavigationItem.Home.route) { HomeScreen() }
             composable(NavigationItem.Search.route) { SearchScreen() }
-            composable(NavigationItem.Post.route) { PostScreen() }
+            composable(NavigationItem.Post.route) { CreatePostScreen(navController = navController) }
             composable(NavigationItem.History.route) { HistoryScreen() }
             composable(NavigationItem.Profile.route) {
                 ProfileScreen(navController = navController)

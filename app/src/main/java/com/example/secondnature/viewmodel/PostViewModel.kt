@@ -1,12 +1,11 @@
 package com.example.secondnature.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.secondnature.data.model.Post
-import com.example.secondnature.data.model.User
 import com.example.secondnature.data.repository.PostRepository
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
@@ -40,10 +39,40 @@ class PostViewModel : ViewModel() {
         username: String,
         date: Timestamp,
         storeId: String,
-        userId: String
+        userId: String,
+        onPostCreated: (String) -> Unit
     ) {
         viewModelScope.launch {
+            val post = Post(
+                postId = "",
+                imageURL = imageURL,
+                storeRating = storeRating,
+                priceRating = priceRating,
+                storeName = storeName,
+                username = username,
+                date = date,
+                storeId = storeId,
+                userId = userId
+            )
 
+            postRepository.createPost(post).onSuccess { postId ->
+                onPostCreated(postId)
+            }.onFailure {
+                _error.value = it.message ?: "Unknown error"
+                _post.value = null
+            }
+        }
+    }
+
+    fun updatePost(post: Post) {
+        viewModelScope.launch {
+            Log.d("PostViewModel", "Updating post: $post")
+            postRepository.updatePost(post).onSuccess {
+                _post.value = it
+            }.onFailure {
+                _error.value = it.message ?: "Unknown error"
+                _post.value = null
+            }
         }
     }
 }

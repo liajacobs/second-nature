@@ -3,6 +3,7 @@ package com.example.secondnature.data.model
 import com.google.firebase.Timestamp
 
 data class Post(
+    val postId: String = "",
     val imageURL: String = "",
     val storeRating: Int = 0,
     val priceRating: Int = 0,
