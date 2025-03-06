@@ -55,8 +55,8 @@ class PostViewModel : ViewModel() {
                 userId = userId
             )
 
-            postRepository.createPost(post).onSuccess { postId ->
-                onPostCreated(postId)
+            postRepository.createPost(post).onSuccess {
+                onPostCreated(it)
             }.onFailure {
                 _error.value = it.message ?: "Unknown error"
                 _post.value = null
@@ -66,7 +66,6 @@ class PostViewModel : ViewModel() {
 
     fun updatePost(post: Post, onPostEdited: (String) -> Unit) {
         viewModelScope.launch {
-            Log.d("PostViewModel", "Updating post: $post")
             postRepository.updatePost(post).onSuccess {
                 _post.value = it
                 onPostEdited(it.postId)
@@ -76,5 +75,17 @@ class PostViewModel : ViewModel() {
             }
         }
     }
-}
 
+    fun deletePost(postId: String) {
+        viewModelScope.launch {
+            val result = postRepository.deletePost(postId)
+
+            result.onSuccess {
+                _post.value = null
+                Log.d("PostViewModel", "Post successfully deleted.")
+            }.onFailure { exception ->
+                Log.e("PostViewModel", "Error deleting post: ${exception.message}")
+            }
+        }
+    }
+}

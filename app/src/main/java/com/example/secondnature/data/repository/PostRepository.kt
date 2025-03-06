@@ -38,17 +38,25 @@ class PostRepository {
     }
 
     suspend fun updatePost(post: Post): Result<Post> {
-        Log.d("PostRepository", "Updating post with ID: ${post.postId}")
         return try {
             auth.currentUser?.uid ?: throw Exception("User not authenticated")
             val documentRef = firestore.collection("posts").document(post.postId)
             val updatedPost = post.copy(postId = "")
-
             documentRef.set(updatedPost, SetOptions.merge()).await()
-
             Result.success(post)
         } catch (e: Exception) {
             Log.e("PostRepository", "Error updating post: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deletePost(postId: String): Result<String> {
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            firestore.collection("posts").document(postId).delete().await()
+            Result.success("Post deleted")
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error deleting post: ${e.message}")
             Result.failure(e)
         }
     }

@@ -3,11 +3,8 @@ package com.example.secondnature.ui.screens.post
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +21,7 @@ import com.example.secondnature.viewmodel.PostViewModel
 fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
     Log.d("Lifecycle", "Entering ViewPostScreen Composable")
 
-    var postId = navController.currentBackStackEntry?.arguments?.getString("postId")
+    val postId = navController.currentBackStackEntry?.arguments?.getString("postId")
 
     LaunchedEffect(postId) {
         postId?.let {
@@ -34,8 +31,7 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
@@ -47,7 +43,15 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
             Text("Edit Post")
         }
 
+        Button(
+            onClick = {postId?.let{postViewModel.deletePost(postId)}},
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Delete Post")
+        }
+
         val post = postViewModel.post.observeAsState()
+
         post.value?.let { postData ->
             PostItem(
                 imageURL = postData.imageURL,
@@ -61,5 +65,4 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
             Text("Loading...")
         }
     }
-
 }
