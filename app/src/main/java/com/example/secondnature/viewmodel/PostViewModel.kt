@@ -64,11 +64,12 @@ class PostViewModel : ViewModel() {
         }
     }
 
-    fun updatePost(post: Post) {
+    fun updatePost(post: Post, onPostEdited: (String) -> Unit) {
         viewModelScope.launch {
             Log.d("PostViewModel", "Updating post: $post")
             postRepository.updatePost(post).onSuccess {
                 _post.value = it
+                onPostEdited(it.postId)
             }.onFailure {
                 _error.value = it.message ?: "Unknown error"
                 _post.value = null

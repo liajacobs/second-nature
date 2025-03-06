@@ -105,7 +105,10 @@ fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = 
                                 date = Timestamp.now(),
                                 storeId = "storeId",
                                 userId = "userId",
-                            )
+                            ),
+                            onPostEdited = { postId ->
+                                navController.navigate("viewPost/$postId")
+                            }
                         )
                     }
             },
