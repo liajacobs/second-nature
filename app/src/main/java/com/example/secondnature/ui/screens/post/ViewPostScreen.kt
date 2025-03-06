@@ -1,8 +1,12 @@
 package com.example.secondnature.ui.screens.post
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -24,13 +28,26 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
 
     LaunchedEffect(postId) {
         postId?.let {
-            postViewModel.getPost(it) // Fetch post by postId
+            postViewModel.getPost(it)
         }
     }
 
-    val post = postViewModel.post.observeAsState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Button(
+            onClick = {
+                navController.navigate("editPost/${postId}")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Edit Post")
+        }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+        val post = postViewModel.post.observeAsState()
         post.value?.let { postData ->
             PostItem(
                 imageURL = postData.imageURL,
@@ -43,13 +60,6 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
         } ?: run {
             Text("Loading...")
         }
-        Button(
-            onClick = {
-                navController.navigate("editPost/${postId}") // Navigate to EditPostScreen
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Edit Post")
-        }
     }
+
 }

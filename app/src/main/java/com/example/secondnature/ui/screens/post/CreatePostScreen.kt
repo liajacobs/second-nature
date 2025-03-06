@@ -27,7 +27,6 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
     val (imageURL, setImageURL) = remember { mutableStateOf("") }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        // Store Name TextField
         TextField(
             value = storeName,
             onValueChange = setStoreName,
@@ -50,22 +49,21 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
             onClick = {
                 postViewModel.createPost(
                     imageURL = imageURL,
-                    storeRating = 1,    // You can make these dynamic too if needed
-                    priceRating = 2,    // Same here for priceRating
+                    storeRating = 1,
+                    priceRating = 2,
                     storeName = storeName,
                     username = "TestUser",
                     date = Timestamp.now(),
-                    storeId = "storeId", // Provide actual storeId and userId here
+                    storeId = "storeId",
                     userId = "userId",
                     onPostCreated = { postId ->
-                        // Navigate to the created post's detail page
                         navController.navigate("viewPost/$postId")
                     }
                 )
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Create Post")  // Button text
+            Text("Create Post")
         }
     }
 }
