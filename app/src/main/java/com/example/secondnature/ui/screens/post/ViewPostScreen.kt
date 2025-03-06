@@ -3,10 +3,8 @@ package com.example.secondnature.ui.screens.post
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -45,6 +43,13 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Edit Post")
+        }
+
+        Button(
+            onClick = { navController.navigate("mainScreen") }, // Change "home" to your actual home route
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Back to Home")
         }
 
         val post = postViewModel.post.observeAsState()
