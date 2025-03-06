@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -25,6 +27,8 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
 
     val (storeName, setStoreName) = remember { mutableStateOf("") }
     val (imageURL, setImageURL) = remember { mutableStateOf("") }
+    val (storeRating, setStoreRating) = remember { mutableIntStateOf(0) }
+    val (priceRating, setPriceRating) = remember { mutableIntStateOf(1) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         TextField(
@@ -45,12 +49,30 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text("Store Rating: $storeRating")
+        Slider(
+            value = storeRating.toFloat(),
+            onValueChange = { setStoreRating(it.toInt()) },
+            valueRange = 0f..5f,
+            steps = 4
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Price Rating: $priceRating")
+        Slider(
+            value = priceRating.toFloat(),
+            onValueChange = { setPriceRating(it.toInt()) },
+            valueRange = 1f..3f,
+            steps = 1
+        )
+
         Button(
             onClick = {
                 postViewModel.createPost(
                     imageURL = imageURL,
-                    storeRating = 1,
-                    priceRating = 2,
+                    storeRating = storeRating,
+                    priceRating = priceRating,
                     storeName = storeName,
                     username = "TestUser",
                     date = Timestamp.now(),

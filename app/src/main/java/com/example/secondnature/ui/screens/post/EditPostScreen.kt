@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,21 +34,23 @@ fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = 
     val postId = navController.currentBackStackEntry?.arguments?.getString("postId")
     val (storeName, setStoreName) = remember { mutableStateOf("") }
     val (imageURL, setImageURL) = remember { mutableStateOf("") }
+    val (storeRating, setStoreRating) = remember { mutableIntStateOf(0) }
+    val (priceRating, setPriceRating) = remember { mutableIntStateOf(1) }
 
     LaunchedEffect(postId) {
         postId?.let {
-            postViewModel.getPost(it) // Trigger to fetch post from viewModel
+            postViewModel.getPost(it)
         }
     }
 
     val post = postViewModel.post.observeAsState()
 
-    Log.d("PostViewModel", "post is $post and post id is $postId")
-
     LaunchedEffect(post.value) {
         post.value?.let {
             setStoreName(it.storeName)
             setImageURL(it.imageURL)
+            setStoreRating(it.storeRating)
+            setPriceRating(it.priceRating)
         }
     }
 
@@ -69,6 +73,24 @@ fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = 
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text("Store Rating: $storeRating")
+        Slider(
+            value = storeRating.toFloat(),
+            onValueChange = { setStoreRating(it.toInt()) },
+            valueRange = 0f..5f,
+            steps = 4
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Price Rating: $priceRating")
+        Slider(
+            value = priceRating.toFloat(),
+            onValueChange = { setPriceRating(it.toInt()) },
+            valueRange = 1f..3f,
+            steps = 1
+        )
+
         Button(
             onClick = {
                 post.value?.let { post ->
@@ -76,8 +98,8 @@ fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = 
                             Post(
                                 postId = post.postId,
                                 imageURL = imageURL,
-                                storeRating = 1,
-                                priceRating = 2,
+                                storeRating = storeRating,
+                                priceRating = priceRating,
                                 storeName = storeName,
                                 username = "TestUser",
                                 date = Timestamp.now(),
