@@ -44,6 +44,25 @@ class PostRepository {
         }
     }
 
+    suspend fun getUserPosts(): Result<List<Post>> {
+        return try {
+            val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val querySnapshot = firestore.collection("posts")
+                .whereEqualTo("userId", userId)
+                .orderBy("date", Query.Direction.DESCENDING)
+                .get()
+                .await()
+            
+            val posts = querySnapshot.documents.mapNotNull { document ->
+                document.toObject(Post::class.java)?.copy(postId = document.id)
+            }
+            Result.success(posts)
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error fetching user posts: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
     suspend fun createPost(post: Post): Result<String> {
         return try {
             auth.currentUser?.uid ?: throw Exception("User not authenticated")
