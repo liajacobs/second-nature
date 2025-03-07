@@ -16,18 +16,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.secondnature.ui.components.PostItem
+import com.example.secondnature.ui.navigation.NavigationItem
 import com.example.secondnature.viewmodel.PostViewModel
 
 @Composable
-fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
+fun ViewPostScreen(
+    navController: NavController,
+    postViewModel: PostViewModel = viewModel(),
+    postId: String
+) {
     Log.d("Lifecycle", "Entering ViewPostScreen Composable")
 
-    val postId = navController.currentBackStackEntry?.arguments?.getString("postId")
-
     LaunchedEffect(postId) {
-        postId?.let {
-            postViewModel.getPost(it)
-        }
+        postViewModel.getPost(postId)
     }
 
     Column(
@@ -46,14 +47,17 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
         }
 
         Button(
-            onClick = { navController.navigate("mainScreen") }, // Change "home" to your actual home route
+            onClick = { navController.navigate(NavigationItem.Home.route) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Back to Home")
         }
 
         Button(
-            onClick = {postId?.let{postViewModel.deletePost(postId)}},
+            onClick = {
+                postViewModel.deletePost(postId)
+                navController.navigate(NavigationItem.Home.route)
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Delete Post")
@@ -73,5 +77,4 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
             Text("Loading...")
         }
     }
-
 }

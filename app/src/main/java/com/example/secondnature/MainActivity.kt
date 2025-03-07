@@ -7,9 +7,10 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
@@ -36,37 +37,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SecondNatureTheme {
-                val navController = rememberNavController()
-                val postViewModel: PostViewModel = viewModel()
-                NavHost(navController = navController, startDestination = "login") {
-                    composable("login") {
-                        LoginScreen(navController = navController, authRepository = authRepository) {
-                            Log.d("Navigation", "Navigating to MainScreen")
-                            navController.navigate("mainScreen") {
-                                popUpTo("login") { inclusive = true }
-                            }
-                        }
-                    }
-                    composable("createAccount") {
-                        CreateAccountScreen(navController = navController, authRepository = authRepository)
-                    }
-                    composable("mainScreen") { MainScreen(navController = navController) }
-                    composable("settings") {
-                        SettingsScreen(navController = navController)
-                    }
-                    composable("viewPost/{postId}") { backStackEntry ->
-                        val postId = backStackEntry.arguments?.getString("postId")
-                        if (postId != null) {
-                            ViewPostScreen(navController = navController, postViewModel = postViewModel)
-                        }
-                    }
-                    composable("editPost/{postId}") { backStackEntry ->
-                        val postId = backStackEntry.arguments?.getString("postId")
-                        if (postId != null) {
-                            EditPostScreen(navController = navController, postViewModel = postViewModel)
-                        }
-                    }
-                }
+                AppContent(authRepository)
             }
         }
     }
@@ -97,25 +68,87 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(navController: NavController) {
-    val nestedNavController = rememberNavController()
+fun AppContent(authRepository: AuthRepository) {
+    val navController = rememberNavController()
+    val postViewModel: PostViewModel = viewModel()
+    
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val showBottomBar = currentRoute?.let { route ->
+        !route.startsWith("login") && !route.startsWith("createAccount")
+    } ?: false
 
     Scaffold(
-            bottomBar = {
-                Navbar(navController = nestedNavController) // Pass the nested controller
+        bottomBar = {
+            if (showBottomBar) {
+                Navbar(
+                    navController = navController,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
             }
+        }
     ) { innerPadding ->
         NavHost(
-                navController = nestedNavController,
-                startDestination = NavigationItem.Home.route,
-                modifier = Modifier.padding(innerPadding)
+            navController = navController,
+            startDestination = "login",
+            modifier = Modifier.padding(innerPadding)
         ) {
+            composable("login") {
+                LoginScreen(
+                    navController = navController,
+                    authRepository = authRepository
+                ) {
+                    Log.d("Navigation", "Navigating to Home")
+                    navController.navigate(NavigationItem.Home.route) {
+                        popUpTo("login") { inclusive = true }
+                    }
+                }
+            }
+            composable("createAccount") {
+                CreateAccountScreen(navController = navController, authRepository = authRepository)
+            }
             composable(NavigationItem.Home.route) { HomeScreen() }
             composable(NavigationItem.Search.route) { SearchScreen() }
             composable(NavigationItem.Post.route) { CreatePostScreen(navController = navController) }
             composable(NavigationItem.History.route) { HistoryScreen() }
             composable(NavigationItem.Profile.route) {
                 ProfileScreen(navController = navController)
+            }
+            composable("settings") {
+                SettingsScreen(navController = navController)
+            }
+            composable(
+                route = "viewPost/{postId}",
+                arguments = listOf(navArgument("postId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getString("postId")
+                if (postId != null) {
+                    ViewPostScreen(
+                        navController = navController,
+                        postViewModel = postViewModel,
+                        postId = postId
+                    )
+                }
+            }
+            composable(
+                route = "editPost/{postId}",
+                arguments = listOf(navArgument("postId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getString("postId")
+                if (postId != null) {
+                    EditPostScreen(
+                        navController = navController,
+                        postViewModel = postViewModel
+                    )
+                }
             }
         }
     }
