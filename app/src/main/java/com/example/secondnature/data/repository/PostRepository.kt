@@ -53,4 +53,15 @@ class PostRepository {
         }
     }
 
+    suspend fun deletePost(postId: String): Result<String> {
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            firestore.collection("posts").document(postId).delete().await()
+            Result.success("Post deleted")
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error deleting post: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
 }

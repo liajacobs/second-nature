@@ -52,6 +52,13 @@ fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = 
             Text("Back to Home")
         }
 
+        Button(
+            onClick = {postId?.let{postViewModel.deletePost(postId)}},
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Delete Post")
+        }
+
         val post = postViewModel.post.observeAsState()
         post.value?.let { postData ->
             PostItem(
