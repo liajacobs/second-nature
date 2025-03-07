@@ -1,5 +1,6 @@
 package com.example.secondnature.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,28 +27,38 @@ class ProfileViewModel : ViewModel() {
 
     private fun loadUserProfile() {
         viewModelScope.launch {
+            Log.d("ProfileViewModel", "Loading user profile")
             _isLoading.value = true
             userRepository
                     .getUserProfile()
                     .onSuccess {
+                        Log.d("ProfileViewModel", "Successfully loaded profile for user: ${it.username}")
                         _user.value = it
                         _error.value = null
                     }
-                    .onFailure { _error.value = "Failed to load profile: ${it.message}" }
+                    .onFailure { 
+                        Log.e("ProfileViewModel", "Failed to load profile: ${it.message}")
+                        _error.value = "Failed to load profile: ${it.message}" 
+                    }
             _isLoading.value = false
         }
     }
 
     fun updateProfile(firstName: String, lastName: String, username: String) {
         viewModelScope.launch {
+            Log.d("ProfileViewModel", "Updating profile for username: $username")
             _isLoading.value = true
             userRepository
                     .updateUserProfile(firstName, lastName, username)
                     .onSuccess {
+                        Log.d("ProfileViewModel", "Successfully updated profile for username: $username")
                         loadUserProfile()
                         _error.value = null
                     }
-                    .onFailure { _error.value = "Failed to update profile: ${it.message}" }
+                    .onFailure { 
+                        Log.e("ProfileViewModel", "Failed to update profile for username: $username - ${it.message}")
+                        _error.value = "Failed to update profile: ${it.message}" 
+                    }
             _isLoading.value = false
         }
     }
