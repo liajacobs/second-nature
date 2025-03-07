@@ -22,7 +22,7 @@ import com.example.secondnature.viewmodel.PostViewModel
 fun ViewPostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
     Log.d("Lifecycle", "Entering ViewPostScreen Composable")
 
-    var postId = navController.currentBackStackEntry?.arguments?.getString("postId")
+    val postId = navController.currentBackStackEntry?.arguments?.getString("postId")
 
     LaunchedEffect(postId) {
         postId?.let {
