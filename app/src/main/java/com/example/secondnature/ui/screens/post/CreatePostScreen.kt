@@ -11,15 +11,20 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.secondnature.data.repository.StoreRepository
 import com.example.secondnature.viewmodel.PostViewModel
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
@@ -27,13 +32,22 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
 
     val (storeName, setStoreName) = remember { mutableStateOf("") }
     val (imageURL, setImageURL) = remember { mutableStateOf("") }
-    val (storeRating, setStoreRating) = remember { mutableIntStateOf(0) }
-    val (priceRating, setPriceRating) = remember { mutableIntStateOf(1) }
+    val (storeRating, setStoreRating) = remember { mutableStateOf(0.0) }
+    val (priceRating, setPriceRating) = remember { mutableStateOf(1.0) }
+    val coroutineScope = rememberCoroutineScope()
+    val storeRepository = remember { StoreRepository() }
 
     Column(modifier = Modifier.padding(16.dp)) {
         TextField(
             value = storeName,
-            onValueChange = setStoreName,
+            onValueChange = { newName ->
+                setStoreName(newName)
+                coroutineScope.launch {
+                    Log.d("CreatePostScreen", "User entered store name: $newName")
+
+
+                }
+            },
             label = { Text("Store Name") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -49,39 +63,74 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Store Rating: $storeRating")
+        Text("Store Rating: ${storeRating.roundToInt()}")
         Slider(
             value = storeRating.toFloat(),
-            onValueChange = { setStoreRating(it.toInt()) },
+            onValueChange = { setStoreRating(it.toDouble()) },
             valueRange = 0f..5f,
             steps = 4
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Price Rating: $priceRating")
+        Text("Price Rating: ${priceRating.roundToInt()}")
         Slider(
             value = priceRating.toFloat(),
-            onValueChange = { setPriceRating(it.toInt()) },
+            onValueChange = { setPriceRating(it.toDouble()) },
             valueRange = 1f..3f,
             steps = 1
         )
 
         Button(
             onClick = {
-                postViewModel.createPost(
-                    imageURL = imageURL,
-                    storeRating = storeRating,
-                    priceRating = priceRating,
-                    storeName = storeName,
-                    username = "TestUser",
-                    date = Timestamp.now(),
-                    storeId = "storeId",
-                    userId = "userId",
-                    onPostCreated = { postId ->
-                        navController.navigate("viewPost/$postId")
+                coroutineScope.launch {
+                    Log.d("CreatePostScreen", "Fetching correct ratings before creating post...")
+
+                    // Ensure we use the actual ratings from Firestore before posting
+                    val fetchedRatings = storeRepository.getStoreRatings(storeName)
+                    val finalStoreRating = fetchedRatings?.first ?: 0.0
+                    val finalPriceRating = fetchedRatings?.second ?: 1.0
+
+                    Log.d("CreatePostScreen", "Final Ratings -> Store: $finalStoreRating, Price: $finalPriceRating")
+
+                    try {
+                        val storeId = "storeId" // Replace this with actual logic to fetch storeId
+
+                        val storeResult = storeRepository.checkAndUpdateStore(
+                            storeName,
+                            storeId,
+                            finalStoreRating,
+                            finalPriceRating
+                        )
+
+                        val updatedStore = storeResult.getOrNull()
+                        Log.d("CreatePostScreen", "Store successfully updated -> Name: Store Rating: ${updatedStore?.storeRating}, Price Rating: ${updatedStore?.priceRating}")
+
+
+                        if (storeResult.isFailure) {
+                            Log.e("CreatePostScreen", "Failed to handle store")
+                        } else {
+                            Log.d("CreatePostScreen", "Store successfully updated")
+
+                            postViewModel.createPost(
+                                imageURL = imageURL,
+                                storeRating = finalStoreRating.roundToInt(),
+                                priceRating = finalPriceRating.roundToInt(),
+                                storeName = storeName,
+                                username = "TestUser",
+                                date = Timestamp.now(),
+                                storeId = storeId,
+                                userId = "userId",
+                                onPostCreated = { postId ->
+                                    Log.d("CreatePostScreen", "Post successfully created: $postId")
+                                    navController.navigate("viewPost/$postId")
+                                }
+                            )
+                        }
+                    } catch (e: Exception) {
+                        Log.e("CreatePostScreen", "Exception occurred: ${e.message}", e)
                     }
-                )
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
