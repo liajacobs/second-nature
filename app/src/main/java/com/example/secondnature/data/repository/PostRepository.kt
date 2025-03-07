@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.secondnature.data.model.Post
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
@@ -21,6 +22,24 @@ class PostRepository {
             } ?: Result.failure(Exception("Post not found"))
         } catch (e: Exception) {
             Log.e("PostRepository", "Error fetching post: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getAllPosts(): Result<List<Post>> {
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val querySnapshot = firestore.collection("posts")
+                .orderBy("date", Query.Direction.DESCENDING)
+                .get()
+                .await()
+            
+            val posts = querySnapshot.documents.mapNotNull { document ->
+                document.toObject(Post::class.java)?.copy(postId = document.id)
+            }
+            Result.success(posts)
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error fetching all posts: ${e.message}")
             Result.failure(e)
         }
     }

@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,6 +22,7 @@ import androidx.navigation.NavController
 import com.example.secondnature.data.repository.StoreRepository
 import com.example.secondnature.viewmodel.PostViewModel
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -36,6 +36,7 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
     val (priceRating, setPriceRating) = remember { mutableStateOf(1.0) }
     val coroutineScope = rememberCoroutineScope()
     val storeRepository = remember { StoreRepository() }
+    val auth = FirebaseAuth.getInstance()
 
     Column(modifier = Modifier.padding(16.dp)) {
         TextField(
@@ -44,8 +45,6 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
                 setStoreName(newName)
                 coroutineScope.launch {
                     Log.d("CreatePostScreen", "User entered store name: $newName")
-
-
                 }
             },
             label = { Text("Store Name") },
@@ -95,6 +94,7 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
 
                     try {
                         val storeId = "storeId" // Replace this with actual logic to fetch storeId
+                        val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
 
                         val storeResult = storeRepository.checkAndUpdateStore(
                             storeName,
@@ -106,27 +106,25 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
                         val updatedStore = storeResult.getOrNull()
                         Log.d("CreatePostScreen", "Store successfully updated -> Name: Store Rating: ${updatedStore?.storeRating}, Price Rating: ${updatedStore?.priceRating}")
 
-
                         if (storeResult.isFailure) {
                             Log.e("CreatePostScreen", "Failed to handle store")
-                        } else {
-                            Log.d("CreatePostScreen", "Store successfully updated")
-
-                            postViewModel.createPost(
-                                imageURL = imageURL,
-                                storeRating = finalStoreRating.roundToInt(),
-                                priceRating = finalPriceRating.roundToInt(),
-                                storeName = storeName,
-                                username = "TestUser",
-                                date = Timestamp.now(),
-                                storeId = storeId,
-                                userId = "userId",
-                                onPostCreated = { postId ->
-                                    Log.d("CreatePostScreen", "Post successfully created: $postId")
-                                    navController.navigate("viewPost/$postId")
-                                }
-                            )
                         }
+
+                        Log.d("CreatePostScreen", "Store successfully updated")
+
+                        postViewModel.createPost(
+                            imageURL = imageURL,
+                            storeRating = finalStoreRating.roundToInt(),
+                            priceRating = finalPriceRating.roundToInt(),
+                            storeName = storeName,
+                            date = Timestamp.now(),
+                            storeId = storeId,
+                            userId = userId,
+                            onPostCreated = { postId ->
+                                Log.d("CreatePostScreen", "Post successfully created: $postId")
+                                navController.navigate("viewPost/$postId")
+                            }
+                        )
                     } catch (e: Exception) {
                         Log.e("CreatePostScreen", "Exception occurred: ${e.message}", e)
                     }

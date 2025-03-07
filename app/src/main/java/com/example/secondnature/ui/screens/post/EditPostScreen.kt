@@ -26,6 +26,7 @@ import com.example.secondnature.data.model.Post
 import com.example.secondnature.ui.components.PostItem
 import com.example.secondnature.viewmodel.PostViewModel
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
@@ -36,6 +37,7 @@ fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = 
     val (imageURL, setImageURL) = remember { mutableStateOf("") }
     val (storeRating, setStoreRating) = remember { mutableIntStateOf(0) }
     val (priceRating, setPriceRating) = remember { mutableIntStateOf(1) }
+    val auth = FirebaseAuth.getInstance()
 
     LaunchedEffect(postId) {
         postId?.let {
@@ -93,7 +95,9 @@ fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = 
 
         Button(
             onClick = {
-                post.value?.let { post ->
+                try {
+                    val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+                    post.value?.let { post ->
                         postViewModel.updatePost(
                             Post(
                                 postId = post.postId,
@@ -101,16 +105,19 @@ fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = 
                                 storeRating = storeRating,
                                 priceRating = priceRating,
                                 storeName = storeName,
-                                username = "TestUser",
+                                username = post.username,
                                 date = Timestamp.now(),
-                                storeId = "storeId",
-                                userId = "userId",
+                                storeId = post.storeId,
+                                userId = userId
                             ),
                             onPostEdited = { postId ->
                                 navController.navigate("viewPost/$postId")
                             }
                         )
                     }
+                } catch (e: Exception) {
+                    Log.e("EditPostScreen", "Error updating post: ${e.message}")
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
