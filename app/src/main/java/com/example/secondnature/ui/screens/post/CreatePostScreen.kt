@@ -83,14 +83,7 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
         Button(
             onClick = {
                 coroutineScope.launch {
-                    Log.d("CreatePostScreen", "Fetching correct ratings before creating post...")
-
-                    // Ensure we use the actual ratings from Firestore before posting
-                    val fetchedRatings = storeRepository.getStoreRatings(storeName)
-                    val finalStoreRating = fetchedRatings?.first ?: 0.0
-                    val finalPriceRating = fetchedRatings?.second ?: 1.0
-
-                    Log.d("CreatePostScreen", "Final Ratings -> Store: $finalStoreRating, Price: $finalPriceRating")
+                    Log.d("CreatePostScreen", "Creating post with user ratings...")
 
                     try {
                         val storeId = "storeId" // Replace this with actual logic to fetch storeId
@@ -99,8 +92,8 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
                         val storeResult = storeRepository.checkAndUpdateStore(
                             storeName,
                             storeId,
-                            finalStoreRating,
-                            finalPriceRating
+                            storeRating,
+                            priceRating
                         )
 
                         val updatedStore = storeResult.getOrNull()
@@ -114,8 +107,8 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
 
                         postViewModel.createPost(
                             imageURL = imageURL,
-                            storeRating = finalStoreRating.roundToInt(),
-                            priceRating = finalPriceRating.roundToInt(),
+                            storeRating = storeRating.roundToInt(),
+                            priceRating = priceRating.roundToInt(),
                             storeName = storeName,
                             date = Timestamp.now(),
                             storeId = storeId,
