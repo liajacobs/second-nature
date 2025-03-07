@@ -43,9 +43,7 @@ class PostRepository {
             auth.currentUser?.uid ?: throw Exception("User not authenticated")
             val documentRef = firestore.collection("posts").document(post.postId)
             val updatedPost = post.copy(postId = "")
-
             documentRef.set(updatedPost, SetOptions.merge()).await()
-
             Result.success(post)
         } catch (e: Exception) {
             Log.e("PostRepository", "Error updating post: ${e.message}")
