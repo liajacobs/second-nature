@@ -8,40 +8,44 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.secondnature.ui.navigation.NavigationItem
 
 @Composable
-fun Navbar(navController: NavController) {
+fun Navbar(
+    navController: NavController,
+    onNavigate: (String) -> Unit
+) {
     Log.d("Lifecycle", "Entering Navbar Composable")
-    val items =
-            listOf(
-                    NavigationItem.Home,
-                    NavigationItem.Search,
-                    NavigationItem.Post,
-                    NavigationItem.History,
-                    NavigationItem.Profile
-            )
+    val items = listOf(
+        NavigationItem.Home,
+        NavigationItem.Search,
+        NavigationItem.Post,
+        NavigationItem.History,
+        NavigationItem.Profile
+    )
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
 
     NavigationBar {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-
         items.forEach { item ->
+            val isSelected = currentDestination?.hierarchy?.any { dest ->
+                when {
+                    dest.route == item.route -> true
+                    item == NavigationItem.Post && 
+                        (dest.route?.startsWith("viewPost") == true || 
+                         dest.route?.startsWith("editPost") == true) -> true
+                    else -> false
+                }
+            } ?: false
+
             NavigationBarItem(
-                    icon = { Icon(item.icon, contentDescription = item.title) },
-                    label = { Text(text = item.title) },
-                    selected = currentRoute == item.route,
-                    onClick = {
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+                icon = { Icon(item.icon, contentDescription = item.title) },
+                label = { Text(text = item.title) },
+                selected = isSelected,
+                onClick = { onNavigate(item.route) }
             )
         }
     }

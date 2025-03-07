@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.android.gms.play.services.location)
     implementation(libs.accompanist.permissions)
     implementation(libs.coil.compose)
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

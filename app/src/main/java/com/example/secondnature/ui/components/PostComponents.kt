@@ -19,8 +19,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import java.time.LocalDateTime
-import java.time.Month
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+private fun formatTimestamp(timestamp: Timestamp): String {
+    val date = Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000)
+    val formatter = SimpleDateFormat("MMM d, yyyy 'at' h:mm a", Locale.getDefault())
+    return formatter.format(date)
+}
 
 // Individual post
 @Composable
@@ -30,8 +38,7 @@ fun PostItem(
     priceRating: Int,
     storeName: String,
     username: String,
-    date: LocalDateTime,
-    distance: Double
+    date: Timestamp,
 ) {
     Log.d("Lifecycle", "Entering PostItem Composable")
     Column(
@@ -55,8 +62,8 @@ fun PostItem(
             modifier = Modifier.padding(vertical = 8.dp)
         )
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("${date.toLocalDate()}")
-            Text("$distance mi")
+            Text(formatTimestamp(date))
+            Text("0 mi")
         }
     }
 }
@@ -67,7 +74,7 @@ fun StarRating(rating: Int) {
     Log.d("Lifecycle", "Entering StarRating Composable")
     Row {
         for (i in 1..5) {
-            var fill = if (i <= rating) Color.Red else Color.Gray
+            val fill = if (i <= rating) Color.Red else Color.Gray
             Icon(
                 imageVector = Icons.Default.Star,
                 contentDescription = "${fill.toString()} Star",
@@ -83,7 +90,7 @@ fun PriceRating(rating: Int) {
     Log.d("Lifecycle", "Entering PriceRating Composable")
     Row {
         for (i in 1..3) {
-            var fill = if (i <= rating) Color.Red else Color.Gray
+            val fill = if (i <= rating) Color.Red else Color.Gray
             Icon(
                 imageVector = Icons.Default.AttachMoney,
                 contentDescription = "${fill.toString()} Dollar Sign",
@@ -91,18 +98,4 @@ fun PriceRating(rating: Int) {
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun Preview() {
-    PostItem(
-        "https://ibb.co/gL34SY26",
-        4,
-        2,
-        "Flower Child",
-        "lia",
-        LocalDateTime.of(2025, Month.JANUARY, 14, 4, 23),
-        1.1
-    )
 }

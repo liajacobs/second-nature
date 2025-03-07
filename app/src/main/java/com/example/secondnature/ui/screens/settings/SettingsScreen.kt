@@ -30,9 +30,7 @@ fun SettingsScreen(navController: NavController) {
                 title = { Text("Settings") },
                 navigationIcon = {
                     IconButton(onClick = { 
-                        navController.navigate("mainScreen") {
-                            popUpTo("mainScreen") { inclusive = false }
-                        }
+                        navController.popBackStack()
                     }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }

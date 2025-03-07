@@ -1,40 +1,103 @@
 package com.example.secondnature.data.repository
 
+import android.util.Log
 import com.example.secondnature.data.model.Post
-import java.time.LocalDateTime
-import java.time.Month
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.tasks.await
 
 class PostRepository {
-    fun getPosts(): List<Post> {
-        // Hardcoded posts, will get actual content from Firebase
-        return listOf(
-            Post(
-                "https://media-photos.depop.com/b1/40794629/2057413339_d5586b8434374d6b8ce33fd222b10b56/P0.jpg",
-                4,
-                2,
-                "Flower Child",
-                "lia",
-                LocalDateTime.of(2025, Month.JANUARY, 14, 4, 23),
-                1.1
-            ),
-            Post(
-                "https://media-photos.depop.com/b1/12248399/2478486451_b4156a1f93094e84a917838f39673c82/P0.jpg",
-                5,
-                1,
-                "Goodwill",
-                "brian",
-                LocalDateTime.of(2024, Month.DECEMBER, 29, 8, 19),
-                1.4
-            ),
-            Post(
-                "https://media-photos.depop.com/b1/52142754/2478798962_34a83e3460534317ba7876af582245e6/P0.jpg",
-                3,
-                3,
-                "Out of the Closet",
-                "charlie",
-                LocalDateTime.of(2025, Month.FEBRUARY, 13, 18, 48),
-                2.4
-            )
-        )
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    suspend fun getPost(postID: String): Result<Post> {
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val document = firestore.collection("posts").document(postID).get().await()
+            document.toObject(Post::class.java)?.let { post ->
+                val postWithId = post.copy(postId = document.id)
+                Result.success(postWithId)
+            } ?: Result.failure(Exception("Post not found"))
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error fetching post: ${e.message}")
+            Result.failure(e)
+        }
     }
+
+    suspend fun getAllPosts(): Result<List<Post>> {
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val querySnapshot = firestore.collection("posts")
+                .orderBy("date", Query.Direction.DESCENDING)
+                .get()
+                .await()
+            
+            val posts = querySnapshot.documents.mapNotNull { document ->
+                document.toObject(Post::class.java)?.copy(postId = document.id)
+            }
+            Result.success(posts)
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error fetching all posts: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUserPosts(): Result<List<Post>> {
+        return try {
+            val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val querySnapshot = firestore.collection("posts")
+                .whereEqualTo("userId", userId)
+                .orderBy("date", Query.Direction.DESCENDING)
+                .get()
+                .await()
+            
+            val posts = querySnapshot.documents.mapNotNull { document ->
+                document.toObject(Post::class.java)?.copy(postId = document.id)
+            }
+            Result.success(posts)
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error fetching user posts: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun createPost(post: Post): Result<String> {
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val documentRef = firestore.collection("posts").add(post).await()
+            val createdPost = post.copy(postId = documentRef.id)
+            Result.success(createdPost.postId)
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error creating post: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun updatePost(post: Post): Result<Post> {
+        Log.d("PostRepository", "Updating post with ID: ${post.postId}")
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val documentRef = firestore.collection("posts").document(post.postId)
+            val updatedPost = post.copy(postId = "")
+            documentRef.set(updatedPost, SetOptions.merge()).await()
+            Result.success(post)
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error updating post: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deletePost(postId: String): Result<String> {
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            firestore.collection("posts").document(postId).delete().await()
+            Result.success("Post deleted")
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error deleting post: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
 }
