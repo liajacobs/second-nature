@@ -20,8 +20,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.google.firebase.Timestamp
-import java.time.LocalDateTime
-import java.time.Month
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+private fun formatTimestamp(timestamp: Timestamp): String {
+    val date = Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000)
+    val formatter = SimpleDateFormat("MMM d, yyyy 'at' h:mm a", Locale.getDefault())
+    return formatter.format(date)
+}
 
 // Individual post
 @Composable
@@ -55,7 +62,7 @@ fun PostItem(
             modifier = Modifier.padding(vertical = 8.dp)
         )
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(date.toString())
+            Text(formatTimestamp(date))
             Text("0 mi")
         }
     }
