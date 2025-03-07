@@ -38,19 +38,19 @@ fun ViewPostScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
+            onClick = { navController.navigate(NavigationItem.Post.route) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Create Another Post")
+        }
+
+        Button(
             onClick = {
                 navController.navigate("editPost/${postId}")
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Edit Post")
-        }
-
-        Button(
-            onClick = { navController.navigate(NavigationItem.Home.route) },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Back to Home")
         }
 
         Button(
