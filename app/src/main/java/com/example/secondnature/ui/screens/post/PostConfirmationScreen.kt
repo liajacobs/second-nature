@@ -20,12 +20,12 @@ import com.example.secondnature.ui.navigation.NavigationItem
 import com.example.secondnature.viewmodel.PostViewModel
 
 @Composable
-fun ViewPostScreen(
+fun PostConfirmationScreen(
     navController: NavController,
     postViewModel: PostViewModel = viewModel(),
     postId: String
 ) {
-    Log.d("Lifecycle", "Entering ViewPostScreen Composable")
+    Log.d("Lifecycle", "Entering PostConfirmationScreen Composable")
 
     LaunchedEffect(postId) {
         postViewModel.getPost(postId)
@@ -77,4 +77,4 @@ fun ViewPostScreen(
             Text("Loading...")
         }
     }
-}
+} 

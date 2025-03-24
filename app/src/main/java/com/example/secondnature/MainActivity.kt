@@ -21,9 +21,10 @@ import com.example.secondnature.ui.screens.auth.CreateAccountScreen
 import com.example.secondnature.ui.screens.auth.LoginScreen
 import com.example.secondnature.ui.screens.history.HistoryScreen
 import com.example.secondnature.ui.screens.home.HomeScreen
+import com.example.secondnature.ui.screens.post.PostConfirmationScreen
 import com.example.secondnature.ui.screens.post.CreatePostScreen
 import com.example.secondnature.ui.screens.post.EditPostScreen
-import com.example.secondnature.ui.screens.post.ViewPostScreen
+import com.example.secondnature.ui.screens.post.PostScreen
 import com.example.secondnature.ui.screens.profile.ProfileScreen
 import com.example.secondnature.ui.screens.search.SearchScreen
 import com.example.secondnature.ui.screens.settings.SettingsScreen
@@ -115,7 +116,7 @@ fun AppContent(authRepository: AuthRepository) {
             composable("createAccount") {
                 CreateAccountScreen(navController = navController, authRepository = authRepository)
             }
-            composable(NavigationItem.Home.route) { HomeScreen() }
+            composable(NavigationItem.Home.route) { HomeScreen(navController = navController) }
             composable(NavigationItem.Search.route) { SearchScreen() }
             composable(NavigationItem.Post.route) { CreatePostScreen(navController = navController) }
             composable(NavigationItem.History.route) { HistoryScreen(navController = navController) }
@@ -131,7 +132,20 @@ fun AppContent(authRepository: AuthRepository) {
             ) { backStackEntry ->
                 val postId = backStackEntry.arguments?.getString("postId")
                 if (postId != null) {
-                    ViewPostScreen(
+                    PostConfirmationScreen(
+                        navController = navController,
+                        postViewModel = postViewModel,
+                        postId = postId
+                    )
+                }
+            }
+            composable(
+                route = "post/{postId}",
+                arguments = listOf(navArgument("postId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getString("postId")
+                if (postId != null) {
+                    PostScreen(
                         navController = navController,
                         postViewModel = postViewModel,
                         postId = postId

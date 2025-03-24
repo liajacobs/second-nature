@@ -1,6 +1,7 @@
 package com.example.secondnature.ui.screens.home
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,12 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.secondnature.ui.components.PostItem
 import com.example.secondnature.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    homeViewModel: HomeViewModel = viewModel(),
+    navController: NavController
+) {
     Log.d("Lifecycle", "Entering HomeScreen Composable")
 
     val posts by homeViewModel.posts.observeAsState(initial = emptyList())
@@ -66,14 +71,22 @@ fun HomeScreen(homeViewModel: HomeViewModel = viewModel()) {
                             contentPadding = PaddingValues(16.dp)
                         ) {
                             items(posts) { post ->
-                                PostItem(
-                                    imageURL = post.imageURL,
-                                    storeRating = post.storeRating,
-                                    priceRating = post.priceRating,
-                                    storeName = post.storeName,
-                                    username = post.username,
-                                    date = post.date
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            navController.navigate("post/${post.postId}")
+                                        }
+                                ) {
+                                    PostItem(
+                                        imageURL = post.imageURL,
+                                        storeRating = post.storeRating,
+                                        priceRating = post.priceRating,
+                                        storeName = post.storeName,
+                                        username = post.username,
+                                        date = post.date
+                                    )
+                                }
                             }
                         }
                     }

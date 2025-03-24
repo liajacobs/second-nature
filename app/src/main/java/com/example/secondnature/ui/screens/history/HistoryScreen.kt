@@ -1,6 +1,7 @@
 package com.example.secondnature.ui.screens.history
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -71,7 +72,13 @@ fun HistoryScreen(
                             items(posts) { post ->
                                 var showMenu by remember { mutableStateOf(false) }
 
-                                Box(modifier = Modifier.fillMaxWidth()) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            navController.navigate("post/${post.postId}")
+                                        }
+                                ) {
                                     PostItem(
                                         imageURL = post.imageURL,
                                         storeRating = post.storeRating,
