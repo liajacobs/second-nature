@@ -34,6 +34,9 @@ fun HistoryScreen(
     val posts by historyViewModel.posts.observeAsState(initial = emptyList())
     val isLoading by historyViewModel.isLoading.observeAsState(initial = true)
     val error by historyViewModel.error.observeAsState()
+    
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var postToDelete by remember { mutableStateOf<String?>(null) }
 
     val refreshState = rememberPullToRefreshState()
     if (refreshState.isRefreshing) {
@@ -113,8 +116,8 @@ fun HistoryScreen(
                                                 text = { Text("Delete Post") },
                                                 onClick = {
                                                     showMenu = false
-                                                    postViewModel.deletePost(post.postId)
-                                                    historyViewModel.fetchUserPosts(true)
+                                                    postToDelete = post.postId
+                                                    showDeleteConfirmation = true
                                                 }
                                             )
                                         }
@@ -143,5 +146,41 @@ fun HistoryScreen(
         if (!isLoading) {
             refreshState.endRefresh()
         }
+    }
+    
+    // Delete Confirmation Dialog
+    if (showDeleteConfirmation && postToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { 
+                showDeleteConfirmation = false 
+                postToDelete = null
+            },
+            title = { Text("Delete Post") },
+            text = { Text("Are you sure you want to delete this post? This action cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        postToDelete?.let { id ->
+                            postViewModel.deletePost(id)
+                            historyViewModel.fetchUserPosts(true)
+                        }
+                        showDeleteConfirmation = false
+                        postToDelete = null
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { 
+                        showDeleteConfirmation = false 
+                        postToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

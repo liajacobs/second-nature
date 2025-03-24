@@ -2,20 +2,27 @@ package com.example.secondnature.ui.screens.post
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +43,8 @@ fun PostScreen(
     Log.d("Lifecycle", "Entering PostScreen Composable")
     val userRepository = UserRepository()
     val currentUserId = userRepository.getCurrentUserId()
+    
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
     
     LaunchedEffect(postId) {
         postViewModel.getPost(postId)
@@ -98,10 +107,7 @@ fun PostScreen(
                                 
                                 // Delete button
                                 FloatingActionButton(
-                                    onClick = {
-                                        postViewModel.deletePost(postId)
-                                        navController.navigate(NavigationItem.Home.route)
-                                    },
+                                    onClick = { showDeleteConfirmation = true },
                                     modifier = Modifier
                                         .align(Alignment.BottomEnd)
                                         .padding(end = 16.dp, bottom = 16.dp),
@@ -119,5 +125,32 @@ fun PostScreen(
                 }
             }
         }
+    }
+    
+    // Delete Confirmation Dialog
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text("Delete Post") },
+            text = { Text("Are you sure you want to delete this post? This action cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        postViewModel.deletePost(postId)
+                        showDeleteConfirmation = false
+                        navController.navigate(NavigationItem.Home.route)
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteConfirmation = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 } 
