@@ -118,7 +118,7 @@ fun AppContent(authRepository: AuthRepository) {
             composable(NavigationItem.Home.route) { HomeScreen() }
             composable(NavigationItem.Search.route) { SearchScreen() }
             composable(NavigationItem.Post.route) { CreatePostScreen(navController = navController) }
-            composable(NavigationItem.History.route) { HistoryScreen() }
+            composable(NavigationItem.History.route) { HistoryScreen(navController = navController) }
             composable(NavigationItem.Profile.route) {
                 ProfileScreen(navController = navController)
             }
