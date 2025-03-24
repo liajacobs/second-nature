@@ -6,11 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,6 +32,8 @@ fun PostConfirmationScreen(
     postId: String
 ) {
     Log.d("Lifecycle", "Entering PostConfirmationScreen Composable")
+    
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     LaunchedEffect(postId) {
         postViewModel.getPost(postId)
@@ -54,10 +62,7 @@ fun PostConfirmationScreen(
         }
 
         Button(
-            onClick = {
-                postViewModel.deletePost(postId)
-                navController.navigate(NavigationItem.Home.route)
-            },
+            onClick = { showDeleteConfirmation = true },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Delete Post")
@@ -76,5 +81,32 @@ fun PostConfirmationScreen(
         } ?: run {
             Text("Loading...")
         }
+    }
+    
+    // Delete Confirmation Dialog
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text("Delete Post") },
+            text = { Text("Are you sure you want to delete this post? This action cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        postViewModel.deletePost(postId)
+                        showDeleteConfirmation = false
+                        navController.navigate(NavigationItem.Home.route)
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteConfirmation = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 } 
