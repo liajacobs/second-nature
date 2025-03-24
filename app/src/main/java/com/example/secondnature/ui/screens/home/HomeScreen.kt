@@ -34,7 +34,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = viewModel()) {
     val refreshState = rememberPullToRefreshState()
     if (refreshState.isRefreshing) {
         LaunchedEffect(true) {
-            homeViewModel.fetchPosts()
+            homeViewModel.fetchPosts(forceRefresh = true)
         }
     }
 

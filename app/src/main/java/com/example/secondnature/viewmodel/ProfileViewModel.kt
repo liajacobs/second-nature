@@ -12,8 +12,7 @@ import kotlinx.coroutines.launch
 class ProfileViewModel : ViewModel() {
     private val userRepository = UserRepository()
 
-    private val _user = MutableLiveData<User?>()
-    val user: LiveData<User?> = _user
+    val user: LiveData<User?> = userRepository.userProfile
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -22,23 +21,25 @@ class ProfileViewModel : ViewModel() {
     val error: LiveData<String?> = _error
 
     init {
-        loadUserProfile()
+        loadUserProfile(false)
     }
 
-    private fun loadUserProfile() {
+    fun loadUserProfile(forceRefresh: Boolean = false) {
         viewModelScope.launch {
             Log.d("ProfileViewModel", "Loading user profile")
             _isLoading.value = true
             userRepository
-                    .getUserProfile()
+                    .getUserProfile(forceRefresh)
                     .onSuccess {
-                        Log.d("ProfileViewModel", "Successfully loaded profile for user: ${it.username}")
-                        _user.value = it
+                        Log.d(
+                                "ProfileViewModel",
+                                "Successfully loaded profile for user: ${it.username}"
+                        )
                         _error.value = null
                     }
-                    .onFailure { 
+                    .onFailure {
                         Log.e("ProfileViewModel", "Failed to load profile: ${it.message}")
-                        _error.value = "Failed to load profile: ${it.message}" 
+                        _error.value = "Failed to load profile: ${it.message}"
                     }
             _isLoading.value = false
         }
@@ -51,13 +52,19 @@ class ProfileViewModel : ViewModel() {
             userRepository
                     .updateUserProfile(firstName, lastName, username)
                     .onSuccess {
-                        Log.d("ProfileViewModel", "Successfully updated profile for username: $username")
-                        loadUserProfile()
+                        Log.d(
+                                "ProfileViewModel",
+                                "Successfully updated profile for username: $username"
+                        )
+                        loadUserProfile(true)
                         _error.value = null
                     }
-                    .onFailure { 
-                        Log.e("ProfileViewModel", "Failed to update profile for username: $username - ${it.message}")
-                        _error.value = "Failed to update profile: ${it.message}" 
+                    .onFailure {
+                        Log.e(
+                                "ProfileViewModel",
+                                "Failed to update profile for username: $username - ${it.message}"
+                        )
+                        _error.value = "Failed to update profile: ${it.message}"
                     }
             _isLoading.value = false
         }
