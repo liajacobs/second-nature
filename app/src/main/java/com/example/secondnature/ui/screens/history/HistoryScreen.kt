@@ -4,26 +4,30 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.secondnature.ui.components.PostItem
 import com.example.secondnature.viewmodel.HistoryViewModel
+import com.example.secondnature.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreen(historyViewModel: HistoryViewModel = viewModel()) {
+fun HistoryScreen(
+    historyViewModel: HistoryViewModel = viewModel(),
+    postViewModel: PostViewModel = viewModel(),
+    navController: NavController
+) {
     Log.d("Lifecycle", "Entering HistoryScreen Composable")
 
     val posts by historyViewModel.posts.observeAsState(initial = emptyList())
@@ -65,14 +69,50 @@ fun HistoryScreen(historyViewModel: HistoryViewModel = viewModel()) {
                             contentPadding = PaddingValues(16.dp)
                         ) {
                             items(posts) { post ->
-                                PostItem(
-                                    imageURL = post.imageURL,
-                                    storeRating = post.storeRating,
-                                    priceRating = post.priceRating,
-                                    storeName = post.storeName,
-                                    username = post.username,
-                                    date = post.date
-                                )
+                                var showMenu by remember { mutableStateOf(false) }
+
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    PostItem(
+                                        imageURL = post.imageURL,
+                                        storeRating = post.storeRating,
+                                        priceRating = post.priceRating,
+                                        storeName = post.storeName,
+                                        username = post.username,
+                                        date = post.date
+                                    )
+                                    
+                                    Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                                        IconButton(
+                                            onClick = { showMenu = true }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.MoreVert,
+                                                contentDescription = "More options"
+                                            )
+                                        }
+
+                                        DropdownMenu(
+                                            expanded = showMenu,
+                                            onDismissRequest = { showMenu = false }
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("Edit Post") },
+                                                onClick = {
+                                                    showMenu = false
+                                                    navController.navigate("editPost/${post.postId}")
+                                                }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("Delete Post") },
+                                                onClick = {
+                                                    showMenu = false
+                                                    postViewModel.deletePost(post.postId)
+                                                    historyViewModel.fetchUserPosts(true)
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
