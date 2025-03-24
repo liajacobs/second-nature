@@ -33,7 +33,7 @@ fun HistoryScreen(historyViewModel: HistoryViewModel = viewModel()) {
     val refreshState = rememberPullToRefreshState()
     if (refreshState.isRefreshing) {
         LaunchedEffect(true) {
-            historyViewModel.fetchUserPosts()
+            historyViewModel.fetchUserPosts(forceRefresh = true)
         }
     }
 
