@@ -1,6 +1,8 @@
 package com.example.secondnature.data.repository
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.secondnature.data.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,13 +12,25 @@ class UserRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    suspend fun getUserProfile(): Result<User> {
+    private val _userProfile = MutableLiveData<User?>()
+    val userProfile: LiveData<User?> = _userProfile
+
+    private var hasLoadedUserProfile = false
+
+    suspend fun getUserProfile(forceRefresh: Boolean = false): Result<User> {
+        if (hasLoadedUserProfile && !forceRefresh && _userProfile.value != null) {
+            return Result.success(_userProfile.value!!)
+        }
+
         return try {
             val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
             val document = firestore.collection("users").document(userId).get().await()
             val user =
                     document.toObject(User::class.java)
                             ?: throw Exception("Failed to retrieve user data")
+
+            _userProfile.postValue(user)
+            hasLoadedUserProfile = true
 
             Result.success(user)
         } catch (e: Exception) {
@@ -50,6 +64,9 @@ class UserRepository {
                     )
 
             firestore.collection("users").document(userId).update(updates).await()
+
+            hasLoadedUserProfile = false
+
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e("UserRepository", "Error updating user profile: ${e.message}")

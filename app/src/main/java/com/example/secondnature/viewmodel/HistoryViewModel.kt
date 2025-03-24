@@ -12,39 +12,36 @@ import kotlinx.coroutines.launch
 class HistoryViewModel : ViewModel() {
     private val postRepository = PostRepository()
 
-    private val _posts = MutableLiveData<List<Post>>()
-    val posts: LiveData<List<Post>> get() = _posts
+    val posts: LiveData<List<Post>> = postRepository.userPosts
 
     private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> get() = _isLoading
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
 
     private val _error = MutableLiveData<String?>()
-    val error: LiveData<String?> get() = _error
+    val error: LiveData<String?>
+        get() = _error
 
     init {
-        fetchUserPosts()
+        fetchUserPosts(false)
     }
 
-    fun fetchUserPosts() {
+    fun fetchUserPosts(forceRefresh: Boolean = false) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                postRepository.getUserPosts()
-                    .onSuccess { posts ->
-                        _posts.value = posts
-                        _error.value = null
-                    }
-                    .onFailure { exception ->
-                        _error.value = exception.message ?: "Failed to fetch your posts"
-                        _posts.value = emptyList()
-                    }
+                postRepository
+                        .getUserPosts(forceRefresh)
+                        .onSuccess { _error.value = null }
+                        .onFailure { exception ->
+                            _error.value = exception.message ?: "Failed to fetch your posts"
+                        }
             } catch (e: Exception) {
                 Log.e("HistoryViewModel", "Error fetching user posts: ${e.message}")
                 _error.value = e.message ?: "An unexpected error occurred"
-                _posts.value = emptyList()
             } finally {
                 _isLoading.value = false
             }
         }
     }
-} 
+}
