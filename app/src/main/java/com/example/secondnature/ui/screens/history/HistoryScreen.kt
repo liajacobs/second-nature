@@ -162,7 +162,7 @@ fun HistoryScreen(
                     onClick = {
                         postToDelete?.let { id ->
                             postViewModel.deletePost(id)
-                            historyViewModel.fetchUserPosts(true)
+                            historyViewModel.fetchUserPosts()
                         }
                         showDeleteConfirmation = false
                         postToDelete = null
