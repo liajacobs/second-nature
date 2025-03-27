@@ -5,7 +5,6 @@ import com.example.secondnature.data.model.Store
 import com.example.secondnature.data.model.StoreDetails
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.CircularBounds
-import com.google.android.libraries.places.api.model.OpeningHours
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
@@ -45,11 +44,11 @@ class PlacesRepository(
                     storeSnapshot.documents.firstOrNull()?.toObject(Store::class.java)
 
                 Store(
-                    storeId = firestoreStore?.storeId ?: null,
+                    storeId = firestoreStore?.storeId,
                     placeId = placeId,
-                    storeName = place.displayName,
-                    storeRating = firestoreStore?.storeRating ?: null,
-                    priceRating = firestoreStore?.priceRating ?: null,
+                    storeName = place.displayName ?: "Unknown Store",
+                    storeRating = firestoreStore?.storeRating,
+                    priceRating = firestoreStore?.priceRating,
                     latitude = location?.latitude ?: 0.0,
                     longitude = location?.longitude ?: 0.0
                 )
@@ -75,7 +74,7 @@ class PlacesRepository(
             val place = response.place
 
             StoreDetails(
-                placeId = place.id,
+                placeId = placeId,
                 address = place.formattedAddress ?: "Address not available",
                 phoneNumber = place.internationalPhoneNumber ?: "Phone number not available",
                 website = place.websiteUri?.toString() ?: "No website",

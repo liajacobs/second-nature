@@ -31,7 +31,6 @@ import com.example.secondnature.ui.screens.search.StoreScreen
 import com.example.secondnature.ui.screens.settings.SettingsScreen
 import com.example.secondnature.ui.theme.SecondNatureTheme
 import com.example.secondnature.viewmodel.LocationViewModel
-import com.example.secondnature.viewmodel.PostViewModel
 
 class MainActivity : ComponentActivity() {
     private val authRepository = AuthRepository()
@@ -75,7 +74,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppContent(authRepository: AuthRepository) {
     val navController = rememberNavController()
-    val postViewModel: PostViewModel = viewModel()
     
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

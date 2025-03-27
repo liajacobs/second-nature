@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -77,7 +76,7 @@ fun StarRating(rating: Int) {
             val fill = if (i <= rating) Color.Red else Color.Gray
             Icon(
                 imageVector = Icons.Default.Star,
-                contentDescription = "${fill.toString()} Star",
+                contentDescription = "$fill Star",
                 tint = fill
             )
         }
@@ -93,7 +92,7 @@ fun PriceRating(rating: Int) {
             val fill = if (i <= rating) Color.Red else Color.Gray
             Icon(
                 imageVector = Icons.Default.AttachMoney,
-                contentDescription = "${fill.toString()} Dollar Sign",
+                contentDescription = "$fill Dollar Sign",
                 tint = fill
             )
         }

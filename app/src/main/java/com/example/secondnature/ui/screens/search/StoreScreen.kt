@@ -39,7 +39,7 @@ fun StoreScreen(
             Text(text = "Address: ${details.address}")
             Text(text = "Phone: ${details.phoneNumber}")
             Text(text = "Website: ${details.website}")
-            Text(text = "Opening Hours: ${details.hours?.weekdayText?.joinToString("\n") ?: "Not Available"}")
+            Text(text = "Opening Hours: ${details.hours.weekdayText.joinToString("\n")}")
 
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { navController.popBackStack() }) {
