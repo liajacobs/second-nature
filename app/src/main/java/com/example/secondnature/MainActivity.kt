@@ -27,8 +27,10 @@ import com.example.secondnature.ui.screens.post.EditPostScreen
 import com.example.secondnature.ui.screens.post.PostScreen
 import com.example.secondnature.ui.screens.profile.ProfileScreen
 import com.example.secondnature.ui.screens.search.SearchScreen
+import com.example.secondnature.ui.screens.search.StoreScreen
 import com.example.secondnature.ui.screens.settings.SettingsScreen
 import com.example.secondnature.ui.theme.SecondNatureTheme
+import com.example.secondnature.viewmodel.LocationViewModel
 import com.example.secondnature.viewmodel.PostViewModel
 
 class MainActivity : ComponentActivity() {
@@ -37,6 +39,8 @@ class MainActivity : ComponentActivity() {
         Log.d("Lifecycle", "MainActivity onCreate")
         super.onCreate(savedInstanceState)
         setContent {
+            val locationViewModel: LocationViewModel = viewModel()
+            locationViewModel.getCurrentLocation()
             SecondNatureTheme {
                 AppContent(authRepository)
             }
@@ -117,7 +121,7 @@ fun AppContent(authRepository: AuthRepository) {
                 CreateAccountScreen(navController = navController, authRepository = authRepository)
             }
             composable(NavigationItem.Home.route) { HomeScreen(navController = navController) }
-            composable(NavigationItem.Search.route) { SearchScreen() }
+            composable(NavigationItem.Search.route) { SearchScreen(navController = navController) }
             composable(NavigationItem.Post.route) { CreatePostScreen(navController = navController) }
             composable(NavigationItem.History.route) { HistoryScreen(navController = navController) }
             composable(NavigationItem.Profile.route) {
@@ -134,7 +138,6 @@ fun AppContent(authRepository: AuthRepository) {
                 if (postId != null) {
                     PostConfirmationScreen(
                         navController = navController,
-                        postViewModel = postViewModel,
                         postId = postId
                     )
                 }
@@ -147,7 +150,6 @@ fun AppContent(authRepository: AuthRepository) {
                 if (postId != null) {
                     PostScreen(
                         navController = navController,
-                        postViewModel = postViewModel,
                         postId = postId
                     )
                 }
@@ -160,7 +162,17 @@ fun AppContent(authRepository: AuthRepository) {
                 if (postId != null) {
                     EditPostScreen(
                         navController = navController,
-                        postViewModel = postViewModel
+                    )
+                }
+            }
+            composable(
+                route = "store/{placeId}",
+                arguments = listOf(navArgument("placeId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val placeId = backStackEntry.arguments?.getString("placeId")
+                if (placeId != null) {
+                    StoreScreen(
+                        navController = navController,
                     )
                 }
             }

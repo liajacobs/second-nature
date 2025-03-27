@@ -8,11 +8,20 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.secondnature.data.model.Store
+import com.example.secondnature.data.repository.PlacesRepository
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.PlacesClient
+import kotlinx.coroutines.launch
 
 class LocationViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val placesClient: PlacesClient = Places.createClient(application)
+    private val placesRepository: PlacesRepository = PlacesRepository(placesClient)
 
     private val _location = MutableLiveData<Pair<Double, Double>?>()
     val location: LiveData<Pair<Double, Double>?> get() = _location
@@ -40,7 +49,6 @@ class LocationViewModel(application: Application) : AndroidViewModel(application
         }
 
         Log.d("LocationViewModel", "Location permissions granted, requesting location update")
-        // Safe to request location
         fusedLocationProviderClient.getCurrentLocation(accuracy, CancellationTokenSource().token)
             .addOnSuccessListener { location ->
                 location?.let {
@@ -55,6 +63,4 @@ class LocationViewModel(application: Application) : AndroidViewModel(application
                 _errorMessage.value = "Error retrieving location"
             }
     }
-
 }
-
