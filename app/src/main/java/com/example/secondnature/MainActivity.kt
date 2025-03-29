@@ -120,7 +120,21 @@ fun AppContent(authRepository: AuthRepository) {
             }
             composable(NavigationItem.Home.route) { HomeScreen(navController = navController) }
             composable(NavigationItem.Search.route) { SearchScreen(navController = navController) }
-            composable(NavigationItem.Post.route) { CreatePostScreen(navController = navController) }
+            composable(
+                "createPost/{placeId}?",
+                arguments = listOf(
+                    navArgument("placeId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { backStackEntry ->
+                CreatePostScreen(
+                    navController = navController,
+                    placeId = backStackEntry.arguments?.getString("placeId")
+                )
+            }
             composable(NavigationItem.History.route) { HistoryScreen(navController = navController) }
             composable(NavigationItem.Profile.route) {
                 ProfileScreen(navController = navController)
@@ -158,9 +172,7 @@ fun AppContent(authRepository: AuthRepository) {
             ) { backStackEntry ->
                 val postId = backStackEntry.arguments?.getString("postId")
                 if (postId != null) {
-                    EditPostScreen(
-                        navController = navController,
-                    )
+                    EditPostScreen(navController = navController, postId = postId)
                 }
             }
             composable(

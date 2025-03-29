@@ -32,50 +32,7 @@ class PostViewModel : ViewModel() {
             }
         }
     }
-
-    fun createPost(
-            imageURL: String,
-            storeRating: Int,
-            priceRating: Int,
-            storeName: String,
-            date: Timestamp,
-            storeId: String,
-            userId: String,
-            onPostCreated: (String) -> Unit
-    ) {
-        viewModelScope.launch {
-            try {
-                userRepository
-                        .getUserProfile()
-                        .onSuccess { user ->
-                            val post =
-                                    Post(
-                                            postId = "",
-                                            imageURL = imageURL,
-                                            storeRating = storeRating,
-                                            priceRating = priceRating,
-                                            storeName = storeName,
-                                            username = user.username,
-                                            date = date,
-                                            storeId = storeId,
-                                            userId = userId
-                                    )
-
-                            postRepository
-                                    .createPost(post)
-                                    .onSuccess { onPostCreated(it) }
-                                    .onFailure {
-                                        _error.value = it.message ?: "Unknown error"
-                                        _post.value = null
-                                    }
-                        }
-                        .onFailure { _error.value = "Failed to get user profile: ${it.message}" }
-            } catch (e: Exception) {
-                _error.value = "Error creating post: ${e.message}"
-            }
-        }
-    }
-
+    
     fun updatePost(post: Post, onPostEdited: (String) -> Unit) {
         viewModelScope.launch {
             try {

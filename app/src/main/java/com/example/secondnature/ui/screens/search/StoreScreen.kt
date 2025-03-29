@@ -24,7 +24,7 @@ fun StoreScreen(
     storeDetailsViewModel: StoreDetailsViewModel = viewModel()
 ) {
     val placeId = navController.currentBackStackEntry?.arguments?.getString("placeId")
-    val storeDetails by storeDetailsViewModel.storeDetails.observeAsState()
+    val store by storeDetailsViewModel.store.observeAsState()
 
     LaunchedEffect(placeId) {
         placeId?.let { id ->
@@ -33,17 +33,30 @@ fun StoreScreen(
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        storeDetails?.let { details ->
-            Text(text = "Store Details", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        store?.let { store ->
+            Text(text = store.storeName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Address: ${details.address}")
-            Text(text = "Phone: ${details.phoneNumber}")
-            Text(text = "Website: ${details.website}")
-            Text(text = "Opening Hours: ${details.hours.weekdayText.joinToString("\n")}")
+            Text(text = "Address: ${store.address}")
+            Text(text = "Phone: ${store.phoneNumber}")
+            Text(text = "Website: ${store.website}")
+            Text(text = "Opening Hours: ${store.hours?.weekdayText?.joinToString("\n")}")
+            Text(text = "Longitude: ${store.longitude}")
+            Text(text = "Latitude: ${store.latitude}")
+            Text(text = "Store Rating: ${store.storeRating.toString()}")
+            Text(text = "Store Rating: ${store.priceRating.toString()}")
 
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { navController.popBackStack() }) {
                 Text(text = "Back")
+            }
+            Button(
+                onClick = {
+                    placeId?.let {
+                        navController.navigate("createPost/$it")
+                    } ?: navController.navigate("createPost")
+                }
+            ) {
+                Text(text = "Create Post")
             }
         } ?: Text(text = "Loading store details...")
     }

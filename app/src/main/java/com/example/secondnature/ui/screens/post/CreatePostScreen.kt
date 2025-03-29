@@ -1,25 +1,38 @@
 package com.example.secondnature.ui.screens.post
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.secondnature.data.model.Store
 import com.example.secondnature.data.repository.StoreRepository
+import com.example.secondnature.viewmodel.CreatePostFormViewModel
 import com.example.secondnature.viewmodel.PostViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -27,29 +40,62 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
+fun CreatePostScreen(
+    navController: NavController,
+    postFormViewModel: CreatePostFormViewModel = viewModel(),
+    placeId: String?
+) {
     Log.d("Lifecycle", "Entering CreatePostScreen Composable")
 
-    val (storeName, setStoreName) = remember { mutableStateOf("") }
+    val (selectedStore, setSelectedStore) = remember { mutableStateOf<Store?>(null) }
     val (imageURL, setImageURL) = remember { mutableStateOf("") }
     val (storeRating, setStoreRating) = remember { mutableStateOf(0.0) }
     val (priceRating, setPriceRating) = remember { mutableStateOf(1.0) }
+    val stores by postFormViewModel.stores.observeAsState(emptyList())
+    var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val storeRepository = remember { StoreRepository() }
     val auth = FirebaseAuth.getInstance()
 
+    LaunchedEffect(Unit) {
+        postFormViewModel.getStores()
+    }
+
+    LaunchedEffect(placeId) {
+        placeId?.let {
+            postFormViewModel.getNewStoreDetails(it)
+        }
+    }
+
+    val store = postFormViewModel.selectedStore.value
+    store?.let {
+        setSelectedStore(it)
+    }
+
     Column(modifier = Modifier.padding(16.dp)) {
-        TextField(
-            value = storeName,
-            onValueChange = { newName ->
-                setStoreName(newName)
-                coroutineScope.launch {
-                    Log.d("CreatePostScreen", "User entered store name: $newName")
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            OutlinedButton(onClick = { expanded = !expanded }, modifier = Modifier.fillMaxWidth()) {
+                Text(text = selectedStore?.storeName ?: "Select Store")
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                stores.forEach { store ->
+                    DropdownMenuItem(
+                        text = { Text(store.storeName) },
+                        onClick = {
+                            setSelectedStore(store)
+                            Log.d("abc", "selecting... ${selectedStore?.storeId}")
+                            expanded = false
+                        }
+                    )
                 }
-            },
-            label = { Text("Store Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -86,33 +132,12 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
                     Log.d("CreatePostScreen", "Creating post with user ratings...")
 
                     try {
-                        val storeId = "storeId" // Replace this with actual logic to fetch storeId
-                        val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
-
-                        val storeResult = storeRepository.checkAndUpdateStore(
-                            storeName,
-                            storeId,
-                            storeRating,
-                            priceRating
-                        )
-
-                        val updatedStore = storeResult.getOrNull()
-                        Log.d("CreatePostScreen", "Store successfully updated -> Name: Store Rating: ${updatedStore?.storeRating}, Price Rating: ${updatedStore?.priceRating}")
-
-                        if (storeResult.isFailure) {
-                            Log.e("CreatePostScreen", "Failed to handle store")
-                        }
-
-                        Log.d("CreatePostScreen", "Store successfully updated")
-
-                        postViewModel.createPost(
+                        postFormViewModel.createPost(
                             imageURL = imageURL,
                             storeRating = storeRating.roundToInt(),
                             priceRating = priceRating.roundToInt(),
-                            storeName = storeName,
-                            date = Timestamp.now(),
-                            storeId = storeId,
-                            userId = userId,
+                            store = selectedStore ?: Store(),
+                            userId = auth.currentUser?.uid ?: "Unknown user id",
                             onPostCreated = { postId ->
                                 Log.d("CreatePostScreen", "Post successfully created: $postId")
                                 navController.navigate("viewPost/$postId")
@@ -123,7 +148,8 @@ fun CreatePostScreen(navController: NavController, postViewModel: PostViewModel 
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = selectedStore != null
         ) {
             Text("Create Post")
         }
