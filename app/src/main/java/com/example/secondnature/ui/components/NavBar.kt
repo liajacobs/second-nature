@@ -45,7 +45,10 @@ fun Navbar(
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(text = item.title) },
                 selected = isSelected,
-                onClick = { onNavigate(item.route) }
+                onClick = {
+                    val route = if (item == NavigationItem.Post) "createPost/null" else item.route
+                    onNavigate(route)
+                }
             )
         }
     }

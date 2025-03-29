@@ -34,10 +34,9 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditPostScreen(navController: NavController, postViewModel: PostViewModel = viewModel()) {
+fun EditPostScreen(navController: NavController, postId: String, postViewModel: PostViewModel = viewModel()) {
     Log.d("Lifecycle", "Entering EditPostScreen Composable")
 
-    val postId = navController.currentBackStackEntry?.arguments?.getString("postId")
     val (storeName, setStoreName) = remember { mutableStateOf("") }
     val (imageURL, setImageURL) = remember { mutableStateOf("") }
     val (storeRating, setStoreRating) = remember { mutableIntStateOf(0) }

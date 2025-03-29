@@ -1,6 +1,7 @@
 package com.example.secondnature.data.repository
 
 import android.util.Log
+import com.example.secondnature.data.model.Post
 import com.example.secondnature.data.model.Store
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -9,105 +10,59 @@ class StoreRepository {
 
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    suspend fun getStoreRatings(storeId: String): Pair<Double, Double>? {
+    suspend fun getAllStores(): List<Store> {
         return try {
-            val doc = firestore.collection("stores").document(storeId).get().await()
-            if (doc.exists()) {
-                val storeRating = doc.getDouble("storeRating") ?: 0.0
-                val priceRating = doc.getDouble("priceRating") ?: 0.0
-                Log.d("StoreRepository", "Fetched Ratings -> Store: $storeRating, Price: $priceRating")
-                Pair(storeRating, priceRating)
-            } else {
-                Log.d("StoreRepository", "No existing store found for storeId: $storeId")
-                null
+            val doc = firestore.collection("stores").get().await()
+            doc.documents.mapNotNull { document ->
+                val store = document.toObject(Store::class.java)
+                store?.copy(storeId = document.id)  // Set storeId as the document ID
             }
         } catch (e: Exception) {
-            Log.e("StoreRepository", "Error fetching store ratings", e)
-            null
+            Log.e("StoreRepository", "Error fetching stores", e)
+            emptyList()
         }
     }
 
-    // Check if store exists and either update or create a new store with average rating calculations
-    suspend fun checkAndUpdateStore(
-        storeName: String,
-        placeId: String,
-        storeRating: Double,
-        priceRating: Double
-    ): Result<Store> {
+    suspend fun createStore(store: Store): Result<Store> {
         return try {
-            val storeRef = firestore.collection("stores").document(placeId)
+            val documentRef = firestore.collection("stores").add(store).await()
+            val createdStore = store.copy(storeId = documentRef.id)
+            Result.success(createdStore)
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Error creating store: ${e.message}")
+            Result.failure(e)
+        }
+    }
 
-            // Check if the store exists
-            val documentSnapshot = storeRef.get().await()
-            if (documentSnapshot.exists()) {
-                Log.d("StoreRepository", "Store exists. Updating ratings...")
+    suspend fun updateStore(storeId: String, newStoreRating: Int, newPriceRating: Int): Result<Store> {
+        return try {
+            val storeRef = firestore.collection("stores").document(storeId)
 
-                // Fetch current values
-                val currentStoreRating = documentSnapshot.getDouble("storeRating") ?: 0.0
-                val currentStoreRatingCount = documentSnapshot.getLong("storeRatingCount") ?: 0L
-                val currentPriceRating = documentSnapshot.getDouble("priceRating") ?: 0.0
-                val currentPriceRatingCount = documentSnapshot.getLong("priceRatingCount") ?: 0L
+            val storeSnapshot = storeRef.get().await()
 
-                Log.d("StoreRepository", "Current Ratings -> Store: $currentStoreRating, Store Count: $currentStoreRatingCount, Price: $currentPriceRating, Price Count: $currentPriceRatingCount")
+            if (storeSnapshot.exists()) {
+                val currentStore = storeSnapshot.toObject(Store::class.java)
 
-                // Calculate new average ratings
-                val newStoreRatingCount = currentStoreRatingCount + 1
-                val newStoreRating = (currentStoreRating * currentStoreRatingCount + storeRating) / newStoreRatingCount
+                val newStoreRatingAvg = (currentStore?.storeRating ?: 0.0) * (currentStore?.ratingCount ?: 0) + newStoreRating
+                val newPriceRatingAvg = (currentStore?.priceRating ?: 0.0) * (currentStore?.ratingCount ?: 0) + newPriceRating
 
-                val newPriceRatingCount = currentPriceRatingCount + 1
-                val newPriceRating = (currentPriceRating * currentPriceRatingCount + priceRating) / newPriceRatingCount
+                val newRatingCount = (currentStore?.ratingCount ?: 0) + 1
 
-                Log.d("StoreRepository", "Updated Ratings -> New Store: $newStoreRating, New Store Count: $newStoreRatingCount, New Price: $newPriceRating, New Price Count: $newPriceRatingCount")
-
-                // Update Firestore
-                storeRef.update(
-                    "placeId", placeId,
-                    "storeName", storeName,
-                    "storeRating", newStoreRating,
-                    "storeRatingCount", newStoreRatingCount,
-                    "priceRating", newPriceRating,
-                    "priceRatingCount", newPriceRatingCount
-                ).await()
-
-                // Return the updated Store object
-                val updatedStore = Store(
-                    placeId = placeId,
-                    storeName = storeName,
-                    storeRating = newStoreRating,
-                    priceRating = newPriceRating
+                val updatedStore = currentStore?.copy(
+                    storeRating = newStoreRatingAvg / newRatingCount,
+                    priceRating = newPriceRatingAvg / newRatingCount,
+                    ratingCount = newRatingCount
                 )
 
-                Log.d("StoreRepository", "Store successfully updated -> Name: ${updatedStore.storeName}, Store Rating: ${updatedStore.storeRating}, Price Rating: ${updatedStore.priceRating}")
-
-                Result.success(updatedStore)
+                updatedStore?.let {
+                    storeRef.set(it).await()
+                    Result.success(it)
+                } ?: Result.failure(Exception("Error updating store"))
             } else {
-                Log.d("StoreRepository", "Store does not exist. Creating new store...")
-
-                // Store does not exist, create a new one
-                val newStoreData = hashMapOf(
-                    "placeId" to placeId,
-                    "storeName" to storeName,
-                    "storeRating" to storeRating,
-                    "storeRatingCount" to 1L,
-                    "priceRating" to priceRating,
-                    "priceRatingCount" to 1L
-                )
-
-                storeRef.set(newStoreData).await()
-
-                val newStore = Store(
-                    placeId = placeId,
-                    storeName = storeName,
-                    storeRating = storeRating,
-                    priceRating = priceRating
-                )
-
-                Log.d("StoreRepository", "New store created -> Name: ${newStore.storeName}, Store Rating: ${newStore.storeRating}, Price Rating: ${newStore.priceRating}")
-
-                Result.success(newStore)
+                Result.failure(Exception("Store not found"))
             }
         } catch (e: Exception) {
-            Log.e("StoreRepository", "Error handling store: ${e.message}", e)
+            Log.e("PostRepository", "Error updating store: ${e.message}")
             Result.failure(e)
         }
     }
