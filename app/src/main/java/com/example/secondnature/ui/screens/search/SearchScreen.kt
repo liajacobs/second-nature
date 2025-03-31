@@ -106,7 +106,13 @@ fun SearchScreen(locationViewModel: LocationViewModel = viewModel(),
                             state = MarkerState(
                                 position = LatLng(store.latitude, store.longitude)
                             ),
-                            title = store.storeName
+                            title = store.storeName,
+                            onClick = {
+                                false 
+                            },
+                            onInfoWindowClick = {
+                                navController.navigate("store/${store.placeId}")
+                            }
                         )
                     }
                 }
