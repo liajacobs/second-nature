@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
@@ -27,6 +29,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.secondnature.BuildConfig
+import com.example.secondnature.ui.components.StarRating
+import com.example.secondnature.ui.components.PriceRating
 import com.example.secondnature.viewmodel.SearchViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
@@ -159,14 +163,26 @@ fun StoreItem(store: Store,  navController: NavController) {
             if (!store.storeId.isNullOrEmpty()) {
                 Text(text = "Store ID: ${store.storeId}")
             }
-            Text(
-                text = "Store Rating: ${store.storeRating?.toString() ?: "Not rated"}",
-                color = if (store.storeRating != null) Color.Black else Color.Gray
-            )
-            Text(
-                text = "Price Rating: ${store.priceRating?.toString() ?: "Not rated"}",
-                color = if (store.priceRating != null) Color.Black else Color.Gray
-            )
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Store Rating: ")
+                store.storeRating?.let { rating ->
+                    StarRating(rating = rating.toInt())
+                } ?: Text(text = "Not rated", color = Color.Gray)
+            }
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Price Rating: ")
+                store.priceRating?.let { price ->
+                    PriceRating(rating = price.toInt())
+                } ?: Text(text = "Not rated", color = Color.Gray)
+            }
 
             Text(text = "Location: ${"%.5f".format(store.latitude)}, ${"%.5f".format(store.longitude)}")
         }
