@@ -111,11 +111,6 @@ fun SearchScreen(locationViewModel: LocationViewModel = viewModel(),
                         compassEnabled = true
                     )
                 ) {
-                    Marker(
-                        state = MarkerState(position = userLocation),
-                        title = "Your Location"
-                    )
-                    
                     stores.forEach { store ->
                         Marker(
                             state = MarkerState(
