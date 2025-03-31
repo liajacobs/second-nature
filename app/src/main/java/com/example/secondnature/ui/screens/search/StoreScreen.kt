@@ -43,7 +43,7 @@ fun StoreScreen(
             Text(text = "Longitude: ${store.longitude}")
             Text(text = "Latitude: ${store.latitude}")
             Text(text = "Store Rating: ${store.storeRating.toString()}")
-            Text(text = "Store Rating: ${store.priceRating.toString()}")
+            Text(text = "Price Rating: ${store.priceRating.toString()}")
 
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { navController.popBackStack() }) {
