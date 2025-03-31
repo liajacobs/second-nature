@@ -62,7 +62,7 @@ fun PostItem(
         )
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(formatTimestamp(date))
-            Text("0 mi")
+//            Text("0 mi")
         }
     }
 }
