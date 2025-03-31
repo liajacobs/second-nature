@@ -34,9 +34,10 @@ fun Navbar(
             val isSelected = currentDestination?.hierarchy?.any { dest ->
                 when {
                     dest.route == item.route -> true
-                    item == NavigationItem.Post && 
-                        (dest.route?.startsWith("viewPost") == true || 
-                         dest.route?.startsWith("editPost") == true) -> true
+                    item == NavigationItem.Post && (
+                        dest.route?.startsWith("createPost") == true || 
+                        dest.route?.startsWith("viewPost") == true || 
+                        dest.route?.startsWith("editPost") == true) -> true
                     else -> false
                 }
             } ?: false
