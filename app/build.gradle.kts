@@ -18,14 +18,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val googlePlacesApiKey = project.findProperty("GOOGLE_PLACES_API_KEY") as String? ?: ""
         buildConfigField("String", "GOOGLE_PLACES_API_KEY", "\"$googlePlacesApiKey\"")
+        resValue("string", "google_maps_key", googlePlacesApiKey)
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
             )
         }
     }
@@ -34,9 +35,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
         isCoreLibraryDesugaringEnabled = true
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+    kotlinOptions { jvmTarget = "11" }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -44,7 +43,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
@@ -65,10 +63,10 @@ dependencies {
     implementation(libs.firebase.messaging) // Firestore SDK
     implementation(libs.androidx.lifecycle.viewmodel.compose.v250)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)  // for icons
+    implementation(libs.androidx.material.icons.extended) // for icons
     implementation(libs.ui.tooling.preview)
     implementation(libs.androidx.runtime.livedata.v100)
-    implementation(libs.androidx.navigation.compose)  // for navigation
+    implementation(libs.androidx.navigation.compose) // for navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.runtime.ktx)
@@ -77,6 +75,13 @@ dependencies {
     implementation(libs.coil.compose)
     implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
     implementation(libs.google.places)
+
+    // Maps 
+    implementation(libs.maps.compose)
+    implementation(libs.maps.ktx)
+    implementation(libs.maps.utils.ktx)
+    implementation(libs.play.services.maps)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
