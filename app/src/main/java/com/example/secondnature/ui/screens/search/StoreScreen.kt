@@ -36,6 +36,7 @@ fun StoreScreen(
         store?.let { store ->
             Text(text = store.storeName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Place ID: ${store.placeId}")
             Text(text = "Address: ${store.address}")
             Text(text = "Phone: ${store.phoneNumber}")
             Text(text = "Website: ${store.website}")

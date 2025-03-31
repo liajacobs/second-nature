@@ -139,7 +139,6 @@ fun StoreItem(store: Store,  navController: NavController) {
         Log.d("Lifecycle", "Entering StoreItem Composable")
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = store.storeName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text(text = "Place ID: ${store.placeId}")
 
             if (!store.storeId.isNullOrEmpty()) {
                 Text(text = "Store ID: ${store.storeId}")
