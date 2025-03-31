@@ -1,6 +1,7 @@
 package com.example.secondnature.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -42,6 +43,13 @@ class CreatePostFormViewModel(application: Application) : AndroidViewModel(appli
     private val _error = MutableLiveData<String>()
     val error: LiveData<String>
         get() = _error
+
+    private val _imageUri = MutableLiveData<Uri?>()
+    val imageUri: LiveData<Uri?> get() = _imageUri
+
+    fun setImageUri(uri: Uri?) {
+        _imageUri.value = uri
+    }
 
     fun getStores() {
         viewModelScope.launch {
@@ -88,6 +96,9 @@ class CreatePostFormViewModel(application: Application) : AndroidViewModel(appli
         userId: String,
         onPostCreated: (String) -> Unit
     ) {
+        val selectedImageUri = _imageUri.value // Get image URI from LiveData
+
+
         viewModelScope.launch {
             try {
                 val userProfileResult = userRepository.getUserProfile()
@@ -142,7 +153,7 @@ class CreatePostFormViewModel(application: Application) : AndroidViewModel(appli
                     userId = userId
                 )
 
-                val createPostResult = postRepository.createPost(post)
+                val createPostResult = postRepository.createPost(post, selectedImageUri)
 
                 if (createPostResult.isSuccess) {
                     onPostCreated(createPostResult.getOrThrow())

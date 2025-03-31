@@ -1,6 +1,8 @@
 package com.example.secondnature.ui.screens.post
 
+import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,13 +32,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.secondnature.data.model.Store
 import com.example.secondnature.data.repository.StoreRepository
+import com.example.secondnature.ui.components.ImagePicker
 import com.example.secondnature.viewmodel.CreatePostFormViewModel
 import com.example.secondnature.viewmodel.PostViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import kotlin.math.roundToInt
 
 @Composable
@@ -55,6 +62,9 @@ fun CreatePostScreen(
     var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val auth = FirebaseAuth.getInstance()
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var isUploading by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         postFormViewModel.getStores()
@@ -99,14 +109,22 @@ fun CreatePostScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
-            value = imageURL,
-            onValueChange = setImageURL,
-            label = { Text("Image URL") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        // Image Picker Component
+        ImagePicker { uri ->
+            selectedImageUri = uri
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        selectedImageUri?.let { uri ->
+            Image(
+                painter = rememberAsyncImagePainter(uri),
+                contentDescription = "Selected Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
+        }
 
         Text("Store Rating: ${storeRating.roundToInt()}")
         Slider(
@@ -130,10 +148,16 @@ fun CreatePostScreen(
             onClick = {
                 coroutineScope.launch {
                     Log.d("CreatePostScreen", "Creating post with user ratings...")
+                    isUploading = true
 
                     try {
+
+                        val imageUrl = selectedImageUri?.let { uri ->
+                            uploadImageToFirebase(uri)
+                        } ?: ""
+
                         postFormViewModel.createPost(
-                            imageURL = imageURL,
+                            imageURL = imageUrl,
                             storeRating = storeRating.roundToInt(),
                             priceRating = priceRating.roundToInt(),
                             store = selectedStore ?: Store(),
@@ -151,7 +175,20 @@ fun CreatePostScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = selectedStore != null
         ) {
-            Text("Create Post")
+            Text(if (isUploading) "Uploading..." else "Create Post")
         }
+    }
+}
+
+suspend fun uploadImageToFirebase(imageUri: Uri): String {
+    val storageRef = FirebaseStorage.getInstance().reference
+    val imageRef = storageRef.child("post_images/${UUID.randomUUID()}.jpg")
+
+    return try {
+        val uploadTask = imageRef.putFile(imageUri).await()
+        imageRef.downloadUrl.await().toString()
+    } catch (e: Exception) {
+        Log.e("FirebaseStorage", "Failed to upload image: ${e.message}", e)
+        ""
     }
 }
