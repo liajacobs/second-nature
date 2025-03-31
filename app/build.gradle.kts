@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.maps.ktx)
     implementation(libs.maps.utils.ktx)
     implementation(libs.play.services.maps)
+    implementation(libs.firebase.storage.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

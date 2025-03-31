@@ -186,6 +186,7 @@ fun AppContent(authRepository: AuthRepository) {
                     )
                 }
             }
+
         }
     }
 }

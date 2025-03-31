@@ -28,6 +28,7 @@ accompanist = "0.35.0-alpha"
 coil = "2.6.0"
 places = "4.0.0"
 mapsCompose = "4.3.3"
+firebaseStorageKtx = "21.0.1"
 
 
 [libraries]
@@ -72,6 +73,7 @@ maps-compose = { group = "com.google.maps.android", name = "maps-compose", versi
 maps-ktx = { group = "com.google.maps.android", name = "maps-ktx", version.ref = "mapsCompose" }
 maps-utils-ktx = { group = "com.google.maps.android", name = "maps-utils-ktx", version = "5.1.1" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version = "18.2.0" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 
 
 [plugins]
