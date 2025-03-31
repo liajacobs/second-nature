@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
@@ -21,9 +22,22 @@ import com.example.secondnature.ui.components.RequestLocationPermission
 import com.example.secondnature.viewmodel.LocationViewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.secondnature.BuildConfig
 import com.example.secondnature.viewmodel.SearchViewModel
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun SearchScreen(locationViewModel: LocationViewModel = viewModel(),
@@ -35,10 +49,19 @@ fun SearchScreen(locationViewModel: LocationViewModel = viewModel(),
     val location by locationViewModel.location.observeAsState()
     val errorMessage by locationViewModel.errorMessage.observeAsState()
     val stores by searchViewModel.stores.observeAsState(emptyList())
+    
+    val defaultLocation = LatLng(40.0067, -83.0305) // Ohio State University
+    val userLocation = location?.let { LatLng(it.first, it.second) } ?: defaultLocation
+    
+    // Store the currently selected location (either user location or a clicked marker)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(userLocation, 12f)
+    }
 
     LaunchedEffect(location) {
         location?.let { (lat, lon) ->
             searchViewModel.fetchNearbyStores(lat, lon) // Call only when location is available
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(lat, lon), 12f)
         }
     }
 
@@ -56,6 +79,38 @@ fun SearchScreen(locationViewModel: LocationViewModel = viewModel(),
             Text(text = it, color = Color.Red)
         } ?: run {
             if (location != null) {
+                // Map
+                GoogleMap(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    cameraPositionState = cameraPositionState,
+                    properties = MapProperties(
+                        isMyLocationEnabled = true,
+                        mapType = MapType.NORMAL,
+                        isTrafficEnabled = false
+                    ),
+                    uiSettings = MapUiSettings(
+                        zoomControlsEnabled = true,
+                        myLocationButtonEnabled = true,
+                        compassEnabled = true
+                    )
+                ) {
+                    Marker(
+                        state = MarkerState(position = userLocation),
+                        title = "Your Location"
+                    )
+                    
+                    stores.forEach { store ->
+                        Marker(
+                            state = MarkerState(
+                                position = LatLng(store.latitude, store.longitude)
+                            ),
+                            title = store.storeName
+                        )
+                    }
+                }
+                
                 if (stores.isEmpty()) {
                     Text(text = "No stores found nearby.")
                 } else {
