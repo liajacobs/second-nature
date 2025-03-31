@@ -38,6 +38,8 @@ fun Navbar(
                         dest.route?.startsWith("createPost") == true || 
                         dest.route?.startsWith("viewPost") == true || 
                         dest.route?.startsWith("editPost") == true) -> true
+                    item == NavigationItem.Search && 
+                        dest.route?.startsWith("store") == true -> true
                     else -> false
                 }
             } ?: false
