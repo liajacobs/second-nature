@@ -39,6 +39,21 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
+// Store name and ratings
+private fun formatMarkerTitle(store: Store): String {
+    val starsString = store.storeRating?.let { rating ->
+        val fullStars = rating.toInt()
+        "★".repeat(fullStars)
+    } ?: ""
+    
+    val dollarsString = store.priceRating?.let { price ->
+        val fullDollars = price.toInt()
+        "$".repeat(fullDollars)
+    } ?: ""
+    
+    return "${store.storeName} $starsString $dollarsString"
+}
+
 @Composable
 fun SearchScreen(locationViewModel: LocationViewModel = viewModel(),
                  searchViewModel: SearchViewModel = viewModel(),
@@ -106,7 +121,7 @@ fun SearchScreen(locationViewModel: LocationViewModel = viewModel(),
                             state = MarkerState(
                                 position = LatLng(store.latitude, store.longitude)
                             ),
-                            title = store.storeName,
+                            title = formatMarkerTitle(store),
                             onClick = {
                                 false 
                             },
