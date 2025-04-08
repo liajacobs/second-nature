@@ -34,6 +34,7 @@ fun HistoryScreen(
     val posts by historyViewModel.posts.observeAsState(initial = emptyList())
     val isLoading by historyViewModel.isLoading.observeAsState(initial = true)
     val error by historyViewModel.error.observeAsState()
+    val hasMorePosts by historyViewModel.hasMorePosts.observeAsState(initial = false)
     
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var postToDelete by remember { mutableStateOf<String?>(null) }
@@ -120,6 +121,23 @@ fun HistoryScreen(
                                                     showDeleteConfirmation = true
                                                 }
                                             )
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (hasMorePosts) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Button(
+                                            onClick = { historyViewModel.loadMorePosts() }
+                                        ) {
+                                            Text("Load More")
                                         }
                                     }
                                 }
