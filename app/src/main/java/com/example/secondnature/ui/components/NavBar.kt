@@ -11,6 +11,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.secondnature.ui.navigation.NavigationItem
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+
 
 @Composable
 fun Navbar(
@@ -51,7 +54,9 @@ fun Navbar(
                 onClick = {
                     val route = if (item == NavigationItem.Post) "createPost/null" else item.route
                     onNavigate(route)
-                }
+                },
+                modifier = Modifier.testTag(item.title)
+
             )
         }
     }

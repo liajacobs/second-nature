@@ -43,6 +43,11 @@ android {
 }
 
 dependencies {
+    testImplementation (libs.kotlinx.coroutines.test.v160)
+
+    implementation (libs.firebase.auth.v2101)
+    implementation (libs.firebase.firestore.v2400)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
@@ -91,4 +96,29 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.9")
+
+    //Testing
+    testImplementation (libs.mockk)
+    testImplementation (libs.kotlinx.coroutines.test)
+    testImplementation (libs.junit)
+    testImplementation (libs.androidx.core.testing)
+    implementation (libs.firebase.firestore.ktx)
+    testImplementation (libs.mockito.inline)
+    testImplementation ("org.mockito:mockito-core:5.2.0") // Use the latest version
+    testImplementation ("net.bytebuddy:byte-buddy:1.12.20") // Ensure this is the latest
+    testImplementation ("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation ("org.robolectric:robolectric:4.11.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.0") // for Compose UI tests
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.0")
+
+
+
+
+
+    testImplementation(kotlin("test"))
+
+
 }

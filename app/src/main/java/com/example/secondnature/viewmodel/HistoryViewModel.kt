@@ -9,8 +9,8 @@ import com.example.secondnature.data.model.Post
 import com.example.secondnature.data.repository.PostRepository
 import kotlinx.coroutines.launch
 
-class HistoryViewModel : ViewModel() {
-    private val postRepository = PostRepository()
+class HistoryViewModel(private val postRepository: PostRepository = PostRepository()) : ViewModel() {
+
 
     private val _posts = MutableLiveData<List<Post>>()
     val posts: LiveData<List<Post>> get() = _posts
