@@ -21,7 +21,7 @@ import org.mockito.kotlin.times
 
 
 @RunWith(RobolectricTestRunner::class)  // Use RobolectricTestRunner for Android-specific tests
-@Config(sdk = [28])  // Specify the Android SDK version you want to simulate (e.g., SDK 28)
+@Config(sdk = [28]) 
 class PostViewModelTest {
 
     private lateinit var postViewModel: PostViewModel
