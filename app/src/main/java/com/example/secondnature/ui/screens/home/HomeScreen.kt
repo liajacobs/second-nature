@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
@@ -35,6 +36,7 @@ fun HomeScreen(
     val posts by homeViewModel.posts.observeAsState(initial = emptyList())
     val isLoading by homeViewModel.isLoading.observeAsState(initial = true)
     val error by homeViewModel.error.observeAsState()
+    val hasMorePosts by homeViewModel.hasMorePosts.observeAsState(initial = false)
 
     val refreshState = rememberPullToRefreshState()
     if (refreshState.isRefreshing) {
@@ -86,6 +88,23 @@ fun HomeScreen(
                                         username = post.username,
                                         date = post.date
                                     )
+                                }
+                            }
+                            
+                            if (hasMorePosts) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Button(
+                                            onClick = { homeViewModel.loadMorePosts() }
+                                        ) {
+                                            Text("Load More")
+                                        }
+                                    }
                                 }
                             }
                         }
