@@ -11,10 +11,10 @@ import com.example.secondnature.data.repository.UserRepository
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 
-class PostViewModel : ViewModel() {
+class PostViewModel(private val postRepository: PostRepository = PostRepository(),
+                    private val userRepository: UserRepository = UserRepository()) : ViewModel() {
 
-    private val postRepository = PostRepository()
-    private val userRepository = UserRepository()
+
 
     private val _post = MutableLiveData<Post?>()
     val post: LiveData<Post?>

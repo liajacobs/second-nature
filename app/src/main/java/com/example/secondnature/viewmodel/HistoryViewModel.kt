@@ -9,14 +9,14 @@ import com.example.secondnature.data.model.Post
 import com.example.secondnature.data.repository.PostRepository
 import kotlinx.coroutines.launch
 
-class HistoryViewModel : ViewModel() {
-    private val postRepository = PostRepository()
+class HistoryViewModel(private val postRepository: PostRepository = PostRepository()) : ViewModel() {
+
     private val pageSize = 10
     
     private val _allPosts = MutableLiveData<List<Post>>(emptyList())
     private val _displayedPosts = MutableLiveData<List<Post>>(emptyList())
     val posts: LiveData<List<Post>> get() = _displayedPosts
-    
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
     
