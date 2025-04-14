@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
@@ -23,6 +24,8 @@ import com.example.secondnature.data.model.Store
 import com.example.secondnature.ui.components.RequestLocationPermission
 import com.example.secondnature.viewmodel.LocationViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -148,43 +151,37 @@ fun SearchScreen(locationViewModel: LocationViewModel = viewModel(),
 }
 
 @Composable
-fun StoreItem(store: Store,  navController: NavController) {
+fun StoreItem(store: Store, navController: NavController) {
+    Log.d("Lifecycle", "Entering StoreItem Composable")
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp).clickable {
-        navController.navigate("store/${store.placeId}")
-    }
+            .padding(vertical = 8.dp)
+            .clickable { navController.navigate("store/${store.placeId}") },
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Log.d("Lifecycle", "Entering StoreItem Composable")
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = store.storeName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(
+                text = store.storeName,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
 
-            if (!store.storeId.isNullOrEmpty()) {
-                Text(text = "Store ID: ${store.storeId}")
-            }
-            
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Store Rating: ")
-                store.storeRating?.let { rating ->
-                    StarRating(rating = rating.toInt())
-                } ?: Text(text = "Not rated", color = Color.Gray)
+                store.storeRating?.let {
+                    StarRating(rating = it.toInt())
+                }
+                store.priceRating?.let {
+                    PriceRating(rating = it.toInt())
+                }
             }
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "Price Rating: ")
-                store.priceRating?.let { price ->
-                    PriceRating(rating = price.toInt())
-                } ?: Text(text = "Not rated", color = Color.Gray)
-            }
-
-            Text(text = "Location: ${"%.5f".format(store.latitude)}, ${"%.5f".format(store.longitude)}")
         }
     }
 }

@@ -35,7 +35,7 @@ fun HistoryScreen(
     val isLoading by historyViewModel.isLoading.observeAsState(initial = true)
     val error by historyViewModel.error.observeAsState()
     val hasMorePosts by historyViewModel.hasMorePosts.observeAsState(initial = false)
-    
+
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var postToDelete by remember { mutableStateOf<String?>(null) }
 
@@ -47,12 +47,17 @@ fun HistoryScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         when {
             error != null -> {
-                Text(text = error ?: "Unknown error occurred")
+                Text(
+                    text = error ?: "Unknown error occurred",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
             else -> {
                 Box(
@@ -65,13 +70,15 @@ fun HistoryScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "You haven't made any posts yet")
+                            Text(
+                                text = "You haven't made any posts yet",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
                         }
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
-                            contentPadding = PaddingValues(16.dp)
                         ) {
                             items(posts) { post ->
                                 var showMenu by remember { mutableStateOf(false) }
@@ -91,14 +98,15 @@ fun HistoryScreen(
                                         username = post.username,
                                         date = post.date
                                     )
-                                    
+
                                     Box(modifier = Modifier.align(Alignment.TopEnd)) {
                                         IconButton(
                                             onClick = { showMenu = true }
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.MoreVert,
-                                                contentDescription = "More options"
+                                                contentDescription = "More options",
+                                                tint = MaterialTheme.colorScheme.primary
                                             )
                                         }
 
@@ -156,7 +164,10 @@ fun HistoryScreen(
         }
 
         if (isLoading) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 
@@ -165,16 +176,26 @@ fun HistoryScreen(
             refreshState.endRefresh()
         }
     }
-    
+
     // Delete Confirmation Dialog
     if (showDeleteConfirmation && postToDelete != null) {
         AlertDialog(
-            onDismissRequest = { 
-                showDeleteConfirmation = false 
+            onDismissRequest = {
+                showDeleteConfirmation = false
                 postToDelete = null
             },
-            title = { Text("Delete Post") },
-            text = { Text("Are you sure you want to delete this post? This action cannot be undone.") },
+            title = {
+                Text(
+                    text = "Delete Post",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete this post? This action cannot be undone.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = {
@@ -184,15 +205,18 @@ fun HistoryScreen(
                         }
                         showDeleteConfirmation = false
                         postToDelete = null
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
                 ) {
                     Text("Delete")
                 }
             },
             dismissButton = {
                 OutlinedButton(
-                    onClick = { 
-                        showDeleteConfirmation = false 
+                    onClick = {
+                        showDeleteConfirmation = false
                         postToDelete = null
                     }
                 ) {

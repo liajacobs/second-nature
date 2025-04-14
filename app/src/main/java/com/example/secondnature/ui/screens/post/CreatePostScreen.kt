@@ -6,15 +6,22 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -29,6 +36,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -65,7 +74,6 @@ fun CreatePostScreen(
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var isUploading by remember { mutableStateOf(false) }
 
-
     LaunchedEffect(Unit) {
         postFormViewModel.getStores()
     }
@@ -81,68 +89,130 @@ fun CreatePostScreen(
         setSelectedStore(it)
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+            )
         ) {
-            OutlinedButton(onClick = { expanded = !expanded }, modifier = Modifier.fillMaxWidth()) {
-                Text(text = selectedStore?.storeName ?: "Select Store")
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                stores.forEach { store ->
-                    DropdownMenuItem(
-                        text = { Text(store.storeName) },
-                        onClick = {
-                            setSelectedStore(store)
-                            Log.d("abc", "selecting... ${selectedStore?.storeId}")
-                            expanded = false
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Text(
+                    text = "Select a Store",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Box {
+                    OutlinedButton(
+                        onClick = { expanded = !expanded },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(text = selectedStore?.storeName ?: "Choose Store")
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        stores.forEach { store ->
+                            DropdownMenuItem(
+                                text = { Text(store.storeName) },
+                                onClick = {
+                                    setSelectedStore(store)
+                                    Log.d("abc", "selecting... ${selectedStore?.storeId}")
+                                    expanded = false
+                                }
+                            )
                         }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Text(
+                    text = "Upload an Image",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                ImagePicker { uri ->
+                    selectedImageUri = uri
+                }
+
+                selectedImageUri?.let { uri ->
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Selected Image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(8.dp))
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Image Picker Component
-        ImagePicker { uri ->
-            selectedImageUri = uri
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        selectedImageUri?.let { uri ->
-            Image(
-                painter = rememberAsyncImagePainter(uri),
-                contentDescription = "Selected Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
             )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Text(
+                    text = "Rate the Store",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Text("Store Rating: ${storeRating.roundToInt()}")
+                Slider(
+                    value = storeRating.toFloat(),
+                    onValueChange = { setStoreRating(it.toDouble()) },
+                    valueRange = 0f..5f,
+                    steps = 4
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Price Rating: ${priceRating.roundToInt()}")
+                Slider(
+                    value = priceRating.toFloat(),
+                    onValueChange = { setPriceRating(it.toDouble()) },
+                    valueRange = 1f..3f,
+                    steps = 1
+                )
+            }
         }
 
-        Text("Store Rating: ${storeRating.roundToInt()}")
-        Slider(
-            value = storeRating.toFloat(),
-            onValueChange = { setStoreRating(it.toDouble()) },
-            valueRange = 0f..5f,
-            steps = 4
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Price Rating: ${priceRating.roundToInt()}")
-        Slider(
-            value = priceRating.toFloat(),
-            onValueChange = { setPriceRating(it.toDouble()) },
-            valueRange = 1f..3f,
-            steps = 1
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
@@ -151,7 +221,6 @@ fun CreatePostScreen(
                     isUploading = true
 
                     try {
-
                         val imageUrl = selectedImageUri?.let { uri ->
                             uploadImageToFirebase(uri)
                         } ?: ""
@@ -172,10 +241,16 @@ fun CreatePostScreen(
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(12.dp),
             enabled = selectedStore != null
         ) {
-            Text(if (isUploading) "Uploading..." else "Create Post")
+            Text(
+                text = if (isUploading) "Uploading..." else "Create Post",
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }

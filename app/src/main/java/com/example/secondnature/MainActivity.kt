@@ -1,5 +1,6 @@
 package com.example.secondnature
 
+import StoreScreen
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -27,7 +28,6 @@ import com.example.secondnature.ui.screens.post.EditPostScreen
 import com.example.secondnature.ui.screens.post.PostScreen
 import com.example.secondnature.ui.screens.profile.ProfileScreen
 import com.example.secondnature.ui.screens.search.SearchScreen
-import com.example.secondnature.ui.screens.search.StoreScreen
 import com.example.secondnature.ui.screens.settings.SettingsScreen
 import com.example.secondnature.ui.theme.SecondNatureTheme
 import com.example.secondnature.viewmodel.LocationViewModel
@@ -186,7 +186,6 @@ fun AppContent(authRepository: AuthRepository) {
                     )
                 }
             }
-
         }
     }
 }
